@@ -182,6 +182,69 @@ jobs:
           fi
           echo "platform=${patched_platform}" >> $GITHUB_OUTPUT
 
+      - name: Validate required secrets
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          SIGN_BINARIES: ${{ inputs.sign-binaries }}
+          PLATFORM: ${{ inputs.platform }}
+        run: |
+          echo "Validating required secrets..."
+          MISSING_SECRETS=()
+          WARNINGS=()
+
+          # TAURI_SIGNING_PRIVATE_KEY is always required for updater artifacts
+          if [[ -z "$TAURI_SIGNING_PRIVATE_KEY" ]]; then
+            MISSING_SECRETS+=("TAURI_SIGNING_PRIVATE_KEY (required for all platforms with updater)")
+          else
+            # Validate the key format (should contain the comment line)
+            # Try to decode if it's base64, otherwise check directly
+            if echo "$TAURI_SIGNING_PRIVATE_KEY" | base64 -d 2>/dev/null | grep -q "untrusted comment"; then
+              echo "✓ TAURI_SIGNING_PRIVATE_KEY format looks correct (base64-encoded)"
+            elif echo "$TAURI_SIGNING_PRIVATE_KEY" | grep -q "untrusted comment"; then
+              echo "✓ TAURI_SIGNING_PRIVATE_KEY format looks correct (raw format)"
+            else
+              WARNINGS+=("TAURI_SIGNING_PRIVATE_KEY may be missing the comment line. Expected format:")
+              WARNINGS+=("   untrusted comment: ...")
+              WARNINGS+=("   [key data]")
+            fi
+          fi
+
+          # Platform-specific signing secrets
+          if [[ "$SIGN_BINARIES" == "true" ]]; then
+            if [[ "$PLATFORM" == *"macos"* ]]; then
+              if [[ -z "${{ secrets.APPLE_ID }}" ]]; then
+                MISSING_SECRETS+=("APPLE_ID (required for macOS signing)")
+              fi
+              if [[ -z "${{ secrets.APPLE_CERTIFICATE }}" ]]; then
+                MISSING_SECRETS+=("APPLE_CERTIFICATE (required for macOS signing)")
+              fi
+              if [[ -z "${{ secrets.APPLE_TEAM_ID }}" ]]; then
+                MISSING_SECRETS+=("APPLE_TEAM_ID (required for macOS signing)")
+              fi
+            fi
+          fi
+
+          # Show warnings first
+          if [[ ${#WARNINGS[@]} -gt 0 ]]; then
+            echo "⚠️  WARNINGS:"
+            printf "   %s\n" "${WARNINGS[@]}"
+            echo ""
+          fi
+
+          # Fail if secrets are missing
+          if [[ ${#MISSING_SECRETS[@]} -gt 0 ]]; then
+            echo "❌ Missing required secrets:"
+            for secret in "${MISSING_SECRETS[@]}"; do
+              echo "   - $secret"
+            done
+            echo ""
+            echo "Please add these secrets in: Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+
+          echo "✅ All required secrets are present"
+
       - name: Build with Tauri
         uses: tauri-apps/tauri-action@v0
         env:
