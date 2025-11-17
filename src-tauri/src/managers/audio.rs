@@ -6,6 +6,82 @@ use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use tauri::Manager;
 
+fn set_mute(mute: bool) {
+    #[cfg(target_os = "windows")]
+    {
+        unsafe {
+            use windows::Win32::{
+                Media::Audio::{
+                    eMultimedia, eRender, Endpoints::IAudioEndpointVolume, IMMDeviceEnumerator,
+                    MMDeviceEnumerator,
+                },
+                System::Com::{CoCreateInstance, CoInitializeEx, CLSCTX_ALL, COINIT_MULTITHREADED},
+            };
+
+            macro_rules! unwrap_or_return {
+                ($expr:expr) => {
+                    match $expr {
+                        Ok(val) => val,
+                        Err(_) => return,
+                    }
+                };
+            }
+
+            let _ = CoInitializeEx(None, COINIT_MULTITHREADED);
+
+            let all_devices: IMMDeviceEnumerator =
+                unwrap_or_return!(CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL));
+            let default_device =
+                unwrap_or_return!(all_devices.GetDefaultAudioEndpoint(eRender, eMultimedia));
+            let volume_interface = unwrap_or_return!(
+                default_device.Activate::<IAudioEndpointVolume>(CLSCTX_ALL, None)
+            );
+
+            let _ = volume_interface.SetMute(mute, std::ptr::null());
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        use std::process::Command;
+
+        let mute_val = if mute { "1" } else { "0" };
+        let amixer_state = if mute { "mute" } else { "unmute" };
+
+        if Command::new("wpctl")
+            .args(["set-mute", "@DEFAULT_AUDIO_SINK@", mute_val])
+            .output()
+            .map(|o| o.status.success())
+            .unwrap_or(false)
+        {
+            return;
+        }
+
+        if Command::new("pactl")
+            .args(["set-sink-mute", "@DEFAULT_SINK@", mute_val])
+            .output()
+            .map(|o| o.status.success())
+            .unwrap_or(false)
+        {
+            return;
+        }
+
+        let _ = Command::new("amixer")
+            .args(["set", "Master", amixer_state])
+            .output();
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        use std::process::Command;
+        let script = format!(
+            "set volume output muted {}",
+            if mute { "true" } else { "false" }
+        );
+        let _ = Command::new("osascript").args(["-e", &script]).output();
+    }
+}
+
 const WHISPER_SAMPLE_RATE: usize = 16000;
 
 /* ──────────────────────────────────────────────────────────────── */
@@ -58,7 +134,7 @@ pub struct AudioRecordingManager {
     recorder: Arc<Mutex<Option<AudioRecorder>>>,
     is_open: Arc<Mutex<bool>>,
     is_recording: Arc<Mutex<bool>>,
-    initial_volume: Arc<Mutex<Option<u8>>>,
+    did_mute: Arc<Mutex<bool>>,
 }
 
 impl AudioRecordingManager {
@@ -80,7 +156,7 @@ impl AudioRecordingManager {
             recorder: Arc::new(Mutex::new(None)),
             is_open: Arc::new(Mutex::new(false)),
             is_recording: Arc::new(Mutex::new(false)),
-            initial_volume: Arc::new(Mutex::new(None)),
+            did_mute: Arc::new(Mutex::new(false)),
         };
 
         // Always-on?  Open immediately.
@@ -93,6 +169,26 @@ impl AudioRecordingManager {
 
     /* ---------- microphone life-cycle -------------------------------------- */
 
+    pub fn apply_mute(&self) {
+        let settings = get_settings(&self.app_handle);
+        let mut did_mute_guard = self.did_mute.lock().unwrap();
+
+        if settings.mute_while_recording && *self.is_open.lock().unwrap() {
+            set_mute(true);
+            *did_mute_guard = true;
+            debug!("Mute applied");
+        }
+    }
+
+    pub fn remove_mute(&self) {
+        let mut did_mute_guard = self.did_mute.lock().unwrap();
+        if *did_mute_guard {
+            set_mute(false);
+            *did_mute_guard = false;
+            debug!("Mute removed");
+        }
+    }
+
     pub fn start_microphone_stream(&self) -> Result<(), anyhow::Error> {
         let mut open_flag = self.is_open.lock().unwrap();
         if *open_flag {
@@ -101,16 +197,7 @@ impl AudioRecordingManager {
         }
 
         let start_time = Instant::now();
-
-        let settings = get_settings(&self.app_handle);
-        let mut initial_volume_guard = self.initial_volume.lock().unwrap();
-
-        if settings.mute_while_recording {
-            *initial_volume_guard = Some(cpvc::get_system_volume());
-            cpvc::set_system_volume(0);
-        } else {
-            *initial_volume_guard = None;
-        }
+        *self.did_mute.lock().unwrap() = false;
 
         let vad_path = self
             .app_handle
@@ -161,16 +248,12 @@ impl AudioRecordingManager {
     }
 
     pub fn stop_microphone_stream(&self) {
+        self.remove_mute();
+
         let mut open_flag = self.is_open.lock().unwrap();
         if !*open_flag {
             return;
         }
-
-        let mut initial_volume_guard = self.initial_volume.lock().unwrap();
-        if let Some(vol) = *initial_volume_guard {
-            cpvc::set_system_volume(vol);
-        }
-        *initial_volume_guard = None;
 
         if let Some(rec) = self.recorder.lock().unwrap().as_mut() {
             // If still recording, stop first.
@@ -273,6 +356,7 @@ impl AudioRecordingManager {
                 };
 
                 *self.is_recording.lock().unwrap() = false;
+                self.remove_mute();
 
                 // In on-demand mode turn the mic off again
                 if matches!(*self.mode.lock().unwrap(), MicrophoneMode::OnDemand) {
@@ -307,6 +391,7 @@ impl AudioRecordingManager {
             }
 
             *self.is_recording.lock().unwrap() = false;
+            self.remove_mute();
 
             // In on-demand mode turn the mic off again
             if matches!(*self.mode.lock().unwrap(), MicrophoneMode::OnDemand) {
