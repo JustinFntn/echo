@@ -6,6 +6,7 @@ import { AlwaysOnMicrophone } from "../always-on-microphone";
 import { SoundPicker } from "../sound-picker";
 import { MuteWhileRecording } from "../mute-while-recording";
 import { RecordingRetentionPeriodSelector } from "../recording-retention-period";
+import { ClamshellMicrophoneSelector } from "../clamshell-microphone-selector";
 
 export const DebugSettings = () => {
   return (
@@ -19,6 +20,7 @@ export const DebugSettings = () => {
         <HistoryLimit descriptionMode="tooltip" grouped={true} />
         <RecordingRetentionPeriodSelector descriptionMode="tooltip" grouped={true} />
         <AlwaysOnMicrophone descriptionMode="tooltip" grouped={true} />
+        <ClamshellMicrophoneSelector descriptionMode="tooltip" grouped={true} />
         <MuteWhileRecording descriptionMode="tooltip" grouped={true} />
       </SettingsGroup>
     </div>

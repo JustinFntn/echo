@@ -9,6 +9,7 @@ export { ExperimentsSettings } from "./experiments/experiments-settings";
 
 // Individual setting components
 export { MicrophoneSelector } from "./microphone-selector";
+export { ClamshellMicrophoneSelector } from "./clamshell-microphone-selector";
 export { OutputDeviceSelector } from "./output-device-selector";
 export { AlwaysOnMicrophone } from "./always-on-microphone";
 export { PushToTalk } from "./push-to-talk";

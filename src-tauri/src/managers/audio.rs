@@ -1,5 +1,6 @@
 use crate::audio_toolkit::{list_input_devices, vad::SmoothedVad, AudioRecorder, SileroVad};
-use crate::settings::get_settings;
+use crate::helpers::clamshell;
+use crate::settings::{get_settings, AppSettings};
 use crate::utils;
 use log::{debug, info};
 use std::sync::{Arc, Mutex};
@@ -167,6 +168,39 @@ impl AudioRecordingManager {
         Ok(manager)
     }
 
+    /* ---------- helper methods --------------------------------------------- */
+
+    fn get_effective_microphone_device(&self, settings: &AppSettings) -> Option<cpal::Device> {
+        let should_use_clamshell_device = if settings.clamshell_microphone.is_some() {
+            match clamshell::is_clamshell() {
+                Ok(is_clamshell) => is_clamshell,
+                Err(err) => {
+                    debug!("Failed to determine clamshell state: {}", err);
+                    false
+                }
+            }
+        } else {
+            false
+        };
+
+        let device_name = if should_use_clamshell_device {
+            settings.clamshell_microphone.as_deref()
+        } else {
+            settings.selected_microphone.as_deref()
+        }?;
+
+        match list_input_devices() {
+            Ok(devices) => devices
+                .into_iter()
+                .find(|d| d.name == device_name)
+                .map(|d| d.device),
+            Err(e) => {
+                debug!("Failed to list devices, using default: {}", e);
+                None
+            }
+        }
+    }
+
     /* ---------- microphone life-cycle -------------------------------------- */
 
     pub fn apply_mute(&self) {
@@ -216,23 +250,9 @@ impl AudioRecordingManager {
             )?);
         }
 
-        // Get the selected device from settings
+        // Get the selected device from settings (switches in clamshell mode)
         let settings = get_settings(&self.app_handle);
-        let selected_device = if let Some(device_name) = settings.selected_microphone {
-            // Find the device by name
-            match list_input_devices() {
-                Ok(devices) => devices
-                    .into_iter()
-                    .find(|d| d.name == device_name)
-                    .map(|d| d.device),
-                Err(e) => {
-                    debug!("Failed to list devices, using default: {}", e);
-                    None
-                }
-            }
-        } else {
-            None
-        };
+        let selected_device = self.get_effective_microphone_device(&settings);
 
         if let Some(rec) = recorder_opt.as_mut() {
             rec.open(selected_device)
