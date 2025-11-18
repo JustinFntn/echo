@@ -334,7 +334,7 @@ pub fn run() {
             commands::audio::play_test_sound,
             commands::audio::check_custom_sounds,
             helpers::clamshell::is_clamshell,
-            helpers::clamshell::has_builtin_display,
+            helpers::clamshell::is_laptop,
             commands::transcription::set_model_unload_timeout,
             commands::transcription::get_model_load_status,
             commands::transcription::unload_model_manually,
