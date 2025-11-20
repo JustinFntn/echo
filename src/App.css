@@ -125,13 +125,13 @@
   /* body {
     @apply bg-background text-foreground;
   } */
-  
+
   /* Tauri drag region support */
   [data-tauri-drag-region] {
     -webkit-app-region: drag;
     app-region: drag;
   }
-  
+
   [data-tauri-drag-region] * {
     -webkit-app-region: no-drag;
     app-region: no-drag;
