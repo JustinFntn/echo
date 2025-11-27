@@ -565,7 +565,8 @@ pub async fn fetch_post_process_models(
         .unwrap_or_default();
 
     // Skip fetching if no API key for providers that typically need one
-    if api_key.trim().is_empty() && provider.id != "custom" {
+    // Ollama and custom providers don't require API keys
+    if api_key.trim().is_empty() && !["custom", "ollama"].contains(&provider.id.as_str()) {
         return Err(format!(
             "API key is required for {}. Please add an API key to list available models.",
             provider.label
@@ -588,12 +589,20 @@ async fn fetch_models_manual(
     api_key: String,
 ) -> Result<Vec<String>, String> {
     // Build the endpoint URL
-    let base_url = provider.base_url.trim_end_matches('/');
-    let models_endpoint = provider
-        .models_endpoint
-        .as_ref()
-        .map(|s| s.trim_start_matches('/'))
-        .unwrap_or("models");
+    // For Ollama, use the base URL without /v1 suffix for the tags endpoint
+    let (base_url, models_endpoint) = if provider.id == "ollama" {
+        // Ollama's /api/tags endpoint is not under /v1
+        let base = provider.base_url.trim_end_matches('/').trim_end_matches("/v1");
+        (base.to_string(), "api/tags".to_string())
+    } else {
+        let base = provider.base_url.trim_end_matches('/').to_string();
+        let endpoint = provider
+            .models_endpoint
+            .as_ref()
+            .map(|s| s.trim_start_matches('/').to_string())
+            .unwrap_or_else(|| "models".to_string());
+        (base, endpoint)
+    };
     let endpoint = format!("{}/{}", base_url, models_endpoint);
 
     // Create HTTP client with headers
@@ -657,8 +666,16 @@ async fn fetch_models_manual(
 
     let mut models = Vec::new();
 
+    // Handle Ollama format: { models: [ { name: "llama3:latest", ... }, ... ] }
+    if let Some(ollama_models) = parsed.get("models").and_then(|m| m.as_array()) {
+        for entry in ollama_models {
+            if let Some(name) = entry.get("name").and_then(|n| n.as_str()) {
+                models.push(name.to_string());
+            }
+        }
+    }
     // Handle OpenAI format: { data: [ { id: "..." }, ... ] }
-    if let Some(data) = parsed.get("data").and_then(|d| d.as_array()) {
+    else if let Some(data) = parsed.get("data").and_then(|d| d.as_array()) {
         for entry in data {
             if let Some(id) = entry.get("id").and_then(|i| i.as_str()) {
                 models.push(id.to_string());

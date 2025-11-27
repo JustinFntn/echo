@@ -314,9 +314,16 @@ fn default_post_process_providers() -> Vec<PostProcessProvider> {
             models_endpoint: Some("/models".to_string()),
         },
         PostProcessProvider {
+            id: "ollama".to_string(),
+            label: "Ollama".to_string(),
+            base_url: "http://localhost:11434/v1".to_string(),
+            allow_base_url_edit: true,
+            models_endpoint: Some("/api/tags".to_string()),
+        },
+        PostProcessProvider {
             id: "custom".to_string(),
             label: "Custom".to_string(),
-            base_url: "http://localhost:11434/v1".to_string(),
+            base_url: "http://localhost:8080/v1".to_string(),
             allow_base_url_edit: true,
             models_endpoint: Some("/models".to_string()),
         },
@@ -445,6 +452,28 @@ fn apply_settings_migrations_from_raw(
             settings.beta_features_enabled = true;
             updated = true;
         }
+    }
+
+    // Migration: Add Ollama provider if it doesn't exist
+    if !settings.post_process_providers.iter().any(|p| p.id == "ollama") {
+        // Find the position to insert (before "custom" if it exists, otherwise at the end)
+        let insert_pos = settings
+            .post_process_providers
+            .iter()
+            .position(|p| p.id == "custom")
+            .unwrap_or(settings.post_process_providers.len());
+
+        settings.post_process_providers.insert(
+            insert_pos,
+            PostProcessProvider {
+                id: "ollama".to_string(),
+                label: "Ollama".to_string(),
+                base_url: "http://localhost:11434/v1".to_string(),
+                allow_base_url_edit: true,
+                models_endpoint: Some("/api/tags".to_string()),
+            },
+        );
+        updated = true;
     }
 
     updated

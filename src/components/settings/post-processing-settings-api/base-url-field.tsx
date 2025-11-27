@@ -4,6 +4,7 @@ import { Input } from "../../ui/Input";
 interface BaseUrlFieldProps {
   value: string;
   onBlur: (value: string) => void;
+  onChange?: (value: string) => void;
   disabled: boolean;
   placeholder?: string;
   className?: string;
@@ -12,6 +13,7 @@ interface BaseUrlFieldProps {
 export const BaseUrlField: React.FC<BaseUrlFieldProps> = ({
   value,
   onBlur,
+  onChange,
   disabled,
   placeholder,
   className = "",
@@ -23,6 +25,12 @@ export const BaseUrlField: React.FC<BaseUrlFieldProps> = ({
     setLocalValue(value);
   }, [value]);
 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
+    setLocalValue(newValue);
+    onChange?.(newValue);
+  };
+
   const disabledMessage = disabled
     ? "Base URL is managed by the selected provider."
     : undefined;
@@ -31,7 +39,7 @@ export const BaseUrlField: React.FC<BaseUrlFieldProps> = ({
     <Input
       type="text"
       value={localValue}
-      onChange={(event) => setLocalValue(event.target.value)}
+      onChange={handleChange}
       onBlur={() => onBlur(localValue)}
       placeholder={placeholder}
       disabled={disabled}

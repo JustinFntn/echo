@@ -13,7 +13,7 @@ const inputVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "button",
     },
   }
 )

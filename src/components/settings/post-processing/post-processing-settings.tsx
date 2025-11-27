@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { RefreshCcw } from "lucide-react";
+import { PlusIcon, RefreshCcw, RotateCcw } from "lucide-react";
 
 import { SettingsGroup } from "../../ui/SettingsGroup";
 import { SettingContainer } from "../../ui/SettingContainer";
 import { Button } from "../../ui/Button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../ui/tooltip";
 import { Input } from "../../ui/Input";
 import { NativeSelect, NativeSelectOption } from "../../ui/native-select";
 import { Textarea } from "../../ui/Textarea";
@@ -27,6 +33,31 @@ const DisabledNotice = ({
 
 const PostProcessingSettingsApiComponent: React.FC = () => {
   const state = usePostProcessProviderState();
+  const [localBaseUrl, setLocalBaseUrl] = useState(state.baseUrl);
+
+  // Sync local value when saved value changes (e.g., after reset or provider change)
+  useEffect(() => {
+    setLocalBaseUrl(state.baseUrl);
+  }, [state.baseUrl]);
+
+  // Fetch models on mount
+  useEffect(() => {
+    if (state.enabled && state.selectedProviderId) {
+      state.handleRefreshModels();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Check if local value differs from default
+  const isLocalBaseUrlModified =
+    state.defaultBaseUrl !== undefined &&
+    (localBaseUrl !== state.defaultBaseUrl || localBaseUrl === "");
+
+  const handleBaseUrlReset = () => {
+    if (state.defaultBaseUrl) {
+      setLocalBaseUrl(state.defaultBaseUrl);
+      state.handleBaseUrlChange(state.defaultBaseUrl);
+    }
+  };
 
   if (!state.enabled) {
     return (
@@ -59,13 +90,14 @@ const PostProcessingSettingsApiComponent: React.FC = () => {
         title="Base URL"
         description="API base URL for the selected provider. Only the custom provider can be edited."
         descriptionMode="tooltip"
-        layout="horizontal"
+        layout="stacked"
         grouped={true}
       >
         <div className="flex items-center gap-2">
           <BaseUrlField
             value={state.baseUrl}
             onBlur={state.handleBaseUrlChange}
+            onChange={setLocalBaseUrl}
             placeholder="https://api.openai.com/v1"
             disabled={
               !state.selectedProvider?.allow_base_url_edit ||
@@ -73,12 +105,37 @@ const PostProcessingSettingsApiComponent: React.FC = () => {
             }
             className="min-w-[380px]"
           />
+          {isLocalBaseUrlModified && state.selectedProvider?.allow_base_url_edit && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleBaseUrlReset}
+                    disabled={state.isBaseUrlUpdating}
+                    aria-label="Reset to default"
+                    className="flex h-10 w-10 items-center justify-center"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Reset to default: {state.defaultBaseUrl}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
       </SettingContainer>
 
       <SettingContainer
         title="API Key"
-        description="API key for the selected provider."
+        description={
+          state.isLocalProvider
+            ? "API key is optional for local providers like Ollama."
+            : "API key for the selected provider."
+        }
         descriptionMode="tooltip"
         layout="horizontal"
         grouped={true}
@@ -87,7 +144,7 @@ const PostProcessingSettingsApiComponent: React.FC = () => {
           <ApiKeyField
             value={state.apiKey}
             onBlur={state.handleApiKeyChange}
-            placeholder="sk-..."
+            placeholder={state.isLocalProvider ? "(optional)" : "sk-..."}
             disabled={state.isApiKeyUpdating}
             className="min-w-[320px]"
           />
@@ -97,8 +154,8 @@ const PostProcessingSettingsApiComponent: React.FC = () => {
       <SettingContainer
         title="Model"
         description={
-          state.isCustomProvider
-            ? "Provide the model identifier expected by your custom endpoint."
+          state.isLocalProvider
+            ? "Provide the model identifier expected by your endpoint (e.g., llama3.2 for Ollama)."
             : "Choose a model exposed by the selected provider."
         }
         descriptionMode="tooltip"
@@ -121,18 +178,28 @@ const PostProcessingSettingsApiComponent: React.FC = () => {
             onBlur={() => {}}
             className="flex-1 min-w-[380px]"
           />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={state.handleRefreshModels}
-            disabled={state.isFetchingModels}
-            aria-label="Refresh models"
-            className="flex h-10 w-10 items-center justify-center"
-          >
-            <RefreshCcw
-              className={`h-4 w-4 ${state.isFetchingModels ? "animate-spin" : ""}`}
-            />
-          </Button>
+          <TooltipProvider>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={state.handleRefreshModels}
+                disabled={state.isFetchingModels}
+                aria-label="Refresh models"
+                className="flex h-10 w-10 items-center justify-center"
+              >
+                <RefreshCcw
+                  className={`h-4 w-4 ${state.isFetchingModels ? "animate-spin" : ""}`}
+                />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Fetch available models from the provider</p>
+            </TooltipContent>
+          </Tooltip>
+                </TooltipProvider>
         </div>
       </SettingContainer>
     </>
@@ -277,12 +344,22 @@ const PostProcessingSettingsPromptsComponent: React.FC = () => {
               </NativeSelectOption>
             ))}
           </NativeSelect>
+<TooltipProvider>
+<Tooltip>
+  <TooltipTrigger asChild>
+
           <Button
             onClick={handleStartCreate}
             disabled={isCreating}
-          >
-            Create New Prompt
+            >
+            <PlusIcon />
           </Button>
+          </TooltipTrigger>
+            <TooltipContent>
+              Create a new prompt
+            </TooltipContent>
+            </Tooltip>
+            </TooltipProvider>
         </div>
 
         {!isCreating && hasPrompts && selectedPrompt && (
@@ -303,6 +380,7 @@ const PostProcessingSettingsPromptsComponent: React.FC = () => {
               </label>
               <Textarea
                 value={draftText}
+                className="min-h-32"
                 onChange={(e) => setDraftText(e.target.value)}
                 placeholder="Write the instructions to run after transcription. Example: Improve grammar and clarity for the following text: ${output}"
               />

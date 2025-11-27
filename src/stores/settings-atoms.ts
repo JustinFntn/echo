@@ -338,6 +338,8 @@ export const setPostProcessProviderAtom = atom(
     try {
       await invoke("set_post_process_provider", { providerId });
       await set(refreshSettingsAtom);
+      // Auto-fetch models for the new provider
+      await set(fetchPostProcessModelsAtom, providerId);
     } catch (error) {
       console.error("Failed to set post-process provider:", error);
       if (previousId !== null) {

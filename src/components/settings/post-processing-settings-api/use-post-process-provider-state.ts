@@ -1,6 +1,7 @@
 import { useSettings } from "../../../hooks/use-settings";
 import type { PostProcessProvider } from "../../../lib/types";
 import type { ModelOption } from "./types";
+import { getDefaultBaseUrl } from "./default-providers";
 
 type DropdownOption = {
   value: string;
@@ -13,8 +14,13 @@ type PostProcessProviderState = {
   selectedProviderId: string;
   selectedProvider: PostProcessProvider | undefined;
   isCustomProvider: boolean;
+  isOllamaProvider: boolean;
+  isLocalProvider: boolean;
   baseUrl: string;
+  defaultBaseUrl: string | undefined;
+  isBaseUrlModified: boolean;
   handleBaseUrlChange: (value: string) => void;
+  handleBaseUrlReset: () => void;
   isBaseUrlUpdating: boolean;
   apiKey: string;
   handleApiKeyChange: (value: string) => void;
@@ -53,6 +59,8 @@ export const usePostProcessProviderState = (): PostProcessProviderState => {
 
   // Use settings directly as single source of truth
   const baseUrl = selectedProvider?.base_url ?? "";
+  const defaultBaseUrl = getDefaultBaseUrl(selectedProviderId);
+  const isBaseUrlModified = defaultBaseUrl !== undefined && (baseUrl !== defaultBaseUrl || baseUrl === "");
   const apiKey = (settings?.post_process_api_keys?.[selectedProviderId] ?? "") as string;
   const model = (settings?.post_process_models?.[selectedProviderId] ?? "") as string;
 
@@ -74,6 +82,15 @@ export const usePostProcessProviderState = (): PostProcessProviderState => {
     const trimmed = value.trim();
     if (trimmed && trimmed !== baseUrl) {
       void updatePostProcessBaseUrl(selectedProvider.id, trimmed);
+    }
+  };
+
+  const handleBaseUrlReset = () => {
+    if (!selectedProvider || !selectedProvider.allow_base_url_edit || !defaultBaseUrl) {
+      return;
+    }
+    if (baseUrl !== defaultBaseUrl) {
+      void updatePostProcessBaseUrl(selectedProvider.id, defaultBaseUrl);
     }
   };
 
@@ -140,9 +157,14 @@ export const usePostProcessProviderState = (): PostProcessProviderState => {
     `post_process_models_fetch:${selectedProviderId}`,
   );
 
+  // Ollama and custom providers don't require API keys
   const isCustomProvider = selectedProvider?.id === "custom";
+  const isOllamaProvider = selectedProvider?.id === "ollama";
+  const isLocalProvider = isCustomProvider || isOllamaProvider;
 
-  // No automatic fetching - user must click refresh button
+  // Auto-fetch models when provider changes
+  // Note: useSettings hook should handle this, but we trigger it here for provider changes
+  // The fetchPostProcessModels will handle API key validation internally
 
   return {
     enabled,
@@ -150,8 +172,13 @@ export const usePostProcessProviderState = (): PostProcessProviderState => {
     selectedProviderId,
     selectedProvider,
     isCustomProvider,
+    isOllamaProvider,
+    isLocalProvider,
     baseUrl,
+    defaultBaseUrl,
+    isBaseUrlModified,
     handleBaseUrlChange,
+    handleBaseUrlReset,
     isBaseUrlUpdating,
     apiKey,
     handleApiKeyChange,
