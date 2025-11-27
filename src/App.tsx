@@ -2,15 +2,19 @@ import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useRef, useState } from "react";
 import { Toaster } from "sonner";
 import "./App.css";
-import {AccessibilityPermissions} from "./components/accessibility-permissions";
-import Footer from "./components/footer";
-import Onboarding from "./components/onboarding";
-import { Sidemenu, SidebarSection, SECTIONS_CONFIG } from "./components/sidemenu";
-import { useSettings } from "./hooks/use-settings";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
-import { cn } from "@/lib/utils";
 import { getNormalizedOsPlatform } from "@/lib/os";
+import { cn } from "@/lib/utils";
+import { AccessibilityPermissions } from "./components/accessibility-permissions";
+import Footer from "./components/footer";
+import Onboarding from "./components/onboarding";
+import {
+  SECTIONS_CONFIG,
+  type SidebarSection,
+  Sidemenu,
+} from "./components/sidemenu";
+import { useSettings } from "./hooks/use-settings";
 
 const renderSettingsContent = (section: SidebarSection) => {
   const ActiveComponent =
@@ -74,7 +78,7 @@ function App() {
   const isInitializing = isLoading || isCheckingOnboarding;
 
   useEffect(() => {
-    if (!isInitializing && !hasSignaledReady.current) {
+    if (!(isInitializing || hasSignaledReady.current)) {
       invoke("mark_frontend_ready")
         .then(() => {
           hasSignaledReady.current = true;
@@ -88,7 +92,7 @@ function App() {
   if (isInitializing) {
     return (
       <div
-        className="h-screen w-full flex flex-col items-center justify-center gap-3 text-muted-foreground"
+        className="flex h-screen w-full flex-col items-center justify-center gap-3 text-muted-foreground"
         data-tauri-drag-region
       >
         <Spinner className="size-8" />
@@ -101,32 +105,31 @@ function App() {
     return <Onboarding onModelSelected={handleModelSelected} />;
   }
 
-
   return (
-    <div className={cn(
-    "h-screen flex flex-col",
-    osPlatform === "linux" && "bg-background",
-    osPlatform === "mac" && "bg-background/85 rounded-[26px] backdrop-blur-xs"
-  )} data-tauri-drag-region>
+    <div
+      className={cn(
+        "flex h-screen flex-col",
+        osPlatform === "linux" && "bg-background",
+        osPlatform === "mac" &&
+          "rounded-[26px] bg-background/85 backdrop-blur-xs"
+      )}
+      data-tauri-drag-region
+    >
       <Toaster />
       {/* Draggable header region */}
-      <div
-        data-tauri-drag-region
-        className="h-8 w-full shrink-0 select-none"
-      />
+      <div className="h-8 w-full shrink-0 select-none" data-tauri-drag-region />
       {/* Main content area that takes remaining space */}
-      <div className="flex-1 flex overflow-hidden" data-tauri-drag-region>
+      <div className="flex flex-1 overflow-hidden" data-tauri-drag-region>
         <Sidemenu
           activeSection={currentSection}
           onSectionChange={setCurrentSection}
         />
         {/* Scrollable content area */}
 
-        <ScrollArea className="w-full *:max-w-xl *:mx-auto">
-              <AccessibilityPermissions />
-              {renderSettingsContent(currentSection)}
+        <ScrollArea className="w-full *:mx-auto *:max-w-xl">
+          <AccessibilityPermissions />
+          {renderSettingsContent(currentSection)}
         </ScrollArea>
-
       </div>
       {/* Fixed footer at bottom */}
       <Footer />

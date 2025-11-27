@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { useEffect, useState } from "react";
 
 interface ModelInfo {
   id: string;
@@ -28,10 +28,10 @@ export const useModels = () => {
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [currentModel, setCurrentModel] = useState<string>("");
   const [downloadingModels, setDownloadingModels] = useState<Set<string>>(
-    new Set(),
+    new Set()
   );
   const [extractingModels, setExtractingModels] = useState<Set<string>>(
-    new Set(),
+    new Set()
   );
   const [downloadProgress, setDownloadProgress] = useState<
     Map<string, DownloadProgress>
@@ -117,23 +117,17 @@ export const useModels = () => {
     }
   };
 
-  const getModelInfo = (modelId: string): ModelInfo | undefined => {
-    return models.find((model) => model.id === modelId);
-  };
+  const getModelInfo = (modelId: string): ModelInfo | undefined =>
+    models.find((model) => model.id === modelId);
 
-  const isModelDownloading = (modelId: string): boolean => {
-    return downloadingModels.has(modelId);
-  };
+  const isModelDownloading = (modelId: string): boolean =>
+    downloadingModels.has(modelId);
 
-  const isModelExtracting = (modelId: string): boolean => {
-    return extractingModels.has(modelId);
-  };
+  const isModelExtracting = (modelId: string): boolean =>
+    extractingModels.has(modelId);
 
-  const getDownloadProgress = (
-    modelId: string,
-  ): DownloadProgress | undefined => {
-    return downloadProgress.get(modelId);
-  };
+  const getDownloadProgress = (modelId: string): DownloadProgress | undefined =>
+    downloadProgress.get(modelId);
 
   useEffect(() => {
     loadModels();
@@ -145,9 +139,9 @@ export const useModels = () => {
       "model-download-progress",
       (event) => {
         setDownloadProgress(
-          (prev) => new Map(prev.set(event.payload.model_id, event.payload)),
+          (prev) => new Map(prev.set(event.payload.model_id, event.payload))
         );
-      },
+      }
     );
 
     // Listen for download completion
@@ -167,7 +161,7 @@ export const useModels = () => {
         });
         // Refresh models list to update download status
         loadModels();
-      },
+      }
     );
 
     // Listen for extraction events
@@ -176,11 +170,11 @@ export const useModels = () => {
       (event) => {
         const modelId = event.payload;
         setExtractingModels((prev) => new Set(prev.add(modelId)));
-      },
+      }
     );
 
     const extractionCompletedUnlisten = listen<string>(
-      "model-extraction-completed", 
+      "model-extraction-completed",
       (event) => {
         const modelId = event.payload;
         setExtractingModels((prev) => {
@@ -190,21 +184,21 @@ export const useModels = () => {
         });
         // Refresh models list to update download status
         loadModels();
-      },
+      }
     );
 
-    const extractionFailedUnlisten = listen<{model_id: string, error: string}>(
-      "model-extraction-failed",
-      (event) => {
-        const modelId = event.payload.model_id;
-        setExtractingModels((prev) => {
-          const next = new Set(prev);
-          next.delete(modelId);
-          return next;
-        });
-        setError(`Failed to extract model: ${event.payload.error}`);
-      },
-    );
+    const extractionFailedUnlisten = listen<{
+      model_id: string;
+      error: string;
+    }>("model-extraction-failed", (event) => {
+      const modelId = event.payload.model_id;
+      setExtractingModels((prev) => {
+        const next = new Set(prev);
+        next.delete(modelId);
+        return next;
+      });
+      setError(`Failed to extract model: ${event.payload.error}`);
+    });
 
     return () => {
       progressUnlisten.then((fn) => fn());

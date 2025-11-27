@@ -1,9 +1,8 @@
-import React from "react";
 import { ClipboardCopy } from "lucide-react";
-import { NativeSelect, NativeSelectOption } from "../ui/native-select";
-import { SettingContainer } from "../ui/SettingContainer";
 import { useSettings } from "../../hooks/use-settings";
 import type { ClipboardHandling } from "../../lib/types";
+import { NativeSelect, NativeSelectOption } from "../ui/native-select";
+import { SettingContainer } from "../ui/SettingContainer";
 
 interface ClipboardHandlingProps {
   descriptionMode?: "inline" | "tooltip";
@@ -15,7 +14,10 @@ const clipboardHandlingOptions = [
   { value: "copy_to_clipboard", label: "Copy to Clipboard" },
 ];
 
-export const ClipboardHandlingSetting = ({ descriptionMode = "tooltip", grouped = false }: ClipboardHandlingProps) => {
+export const ClipboardHandlingSetting = ({
+  descriptionMode = "tooltip",
+  grouped = false,
+}: ClipboardHandlingProps) => {
   const { getSetting, updateSetting, isUpdating } = useSettings();
 
   const selectedHandling = (getSetting("clipboard_handling") ||
@@ -23,18 +25,21 @@ export const ClipboardHandlingSetting = ({ descriptionMode = "tooltip", grouped 
 
   return (
     <SettingContainer
-      title="Clipboard Handling"
       description="Don't Modify Clipboard preserves your current clipboard contents after transcription. Copy to Clipboard leaves the transcription result in your clipboard after pasting."
       descriptionMode={descriptionMode}
       grouped={grouped}
-      icon={<ClipboardCopy className="w-4 h-4" />}
+      icon={<ClipboardCopy className="h-4 w-4" />}
+      title="Clipboard Handling"
     >
       <NativeSelect
-        value={selectedHandling}
-        onChange={(e) =>
-          updateSetting("clipboard_handling", e.target.value as ClipboardHandling)
-        }
         disabled={isUpdating("clipboard_handling")}
+        onChange={(e) =>
+          updateSetting(
+            "clipboard_handling",
+            e.target.value as ClipboardHandling
+          )
+        }
+        value={selectedHandling}
       >
         {clipboardHandlingOptions.map((option) => (
           <NativeSelectOption key={option.value} value={option.value}>

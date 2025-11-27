@@ -1,8 +1,8 @@
-import React from "react";
-import { Timer } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
+import { Timer } from "lucide-react";
+import type React from "react";
 import { useSettings } from "../../hooks/use-settings";
-import { ModelUnloadTimeout } from "../../lib/types";
+import type { ModelUnloadTimeout } from "../../lib/types";
 import { NativeSelect, NativeSelectOption } from "../ui/native-select";
 import { SettingContainer } from "../ui/SettingContainer";
 
@@ -45,20 +45,21 @@ export const ModelUnloadTimeoutSetting: React.FC<ModelUnloadTimeoutProps> = ({
 
   const currentValue = getSetting("model_unload_timeout") ?? "never";
 
-  const options = settings?.debug_mode === true ? debugTimeoutOptions : timeoutOptions;
+  const options =
+    settings?.debug_mode === true ? debugTimeoutOptions : timeoutOptions;
 
   return (
     <SettingContainer
-      title="Unload Model"
       description="Automatically free GPU/CPU memory when the model hasn't been used for the specified time"
       descriptionMode={descriptionMode}
       grouped={grouped}
-      icon={<Timer className="w-4 h-4" />}
+      icon={<Timer className="h-4 w-4" />}
+      title="Unload Model"
     >
       <NativeSelect
-        value={currentValue}
-        onChange={handleChange}
         disabled={false}
+        onChange={handleChange}
+        value={currentValue}
       >
         {options.map((option) => (
           <NativeSelectOption key={option.value} value={option.value}>

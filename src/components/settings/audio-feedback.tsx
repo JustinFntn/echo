@@ -1,10 +1,8 @@
-import React from "react";
 import { Bell } from "lucide-react";
-import { Switch } from "../ui/switch";
-import { SettingContainer } from "../ui/SettingContainer";
+import type React from "react";
 import { useSettings } from "../../hooks/use-settings";
-import { VolumeSlider } from "./volume-slider";
-import { SoundPicker } from "./sound-picker";
+import { SettingContainer } from "../ui/SettingContainer";
+import { Switch } from "../ui/switch";
 
 interface AudioFeedbackProps {
   descriptionMode?: "inline" | "tooltip";
@@ -16,21 +14,23 @@ export const AudioFeedback: React.FC<AudioFeedbackProps> = ({
   grouped = false,
 }) => {
   const { getSetting, updateSetting, isUpdating } = useSettings();
-  const audioFeedbackEnabled = getSetting("audio_feedback") || false;
+  const audioFeedbackEnabled = getSetting("audio_feedback");
 
   return (
     <div className="flex flex-col">
       <SettingContainer
-        title="Audio Feedback"
         description="Play sound when recording starts and stops"
         descriptionMode={descriptionMode}
         grouped={grouped}
-        icon={<Bell className="w-4 h-4" />}
+        icon={<Bell className="h-4 w-4" />}
+        title="Audio Feedback"
       >
         <Switch
           checked={audioFeedbackEnabled}
-          onCheckedChange={(enabled) => updateSetting("audio_feedback", enabled)}
           disabled={isUpdating("audio_feedback")}
+          onCheckedChange={(enabled) =>
+            updateSetting("audio_feedback", enabled)
+          }
         />
       </SettingContainer>
     </div>

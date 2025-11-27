@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { ModelInfo } from "../../lib/types";
-import ModelDropdown from "./model-dropdown";
+import type React from "react";
+import { useEffect, useState } from "react";
+import type { ModelInfo } from "../../lib/types";
 import DownloadProgressDisplay from "./download-progress-display";
+import ModelDropdown from "./model-dropdown";
 
 interface ModelStateEvent {
   event_type: string;
@@ -51,7 +52,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onError }) => {
     Map<string, DownloadStats>
   >(new Map());
   const [extractingModels, setExtractingModels] = useState<Set<string>>(
-    new Set(),
+    new Set()
   );
 
   useEffect(() => {
@@ -83,7 +84,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onError }) => {
             setModelError(null);
             break;
         }
-      },
+      }
     );
 
     // Listen for model download progress
@@ -104,15 +105,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onError }) => {
           const current = prev.get(progress.model_id);
           const newStats = new Map(prev);
 
-          if (!current) {
-            // First progress update - initialize
-            newStats.set(progress.model_id, {
-              startTime: now,
-              lastUpdate: now,
-              totalDownloaded: progress.downloaded,
-              speed: 0,
-            });
-          } else {
+          if (current) {
             // Calculate speed over last few seconds
             const timeDiff = (now - current.lastUpdate) / 1000; // seconds
             const bytesDiff = progress.downloaded - current.totalDownloaded;
@@ -134,11 +127,19 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onError }) => {
                 speed: Math.max(0, smoothedSpeed),
               });
             }
+          } else {
+            // First progress update - initialize
+            newStats.set(progress.model_id, {
+              startTime: now,
+              lastUpdate: now,
+              totalDownloaded: progress.downloaded,
+              speed: 0,
+            });
           }
 
           return newStats;
         });
-      },
+      }
     );
 
     // Listen for model download completion
@@ -163,7 +164,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onError }) => {
           loadCurrentModel();
           handleModelSelect(modelId);
         }, 500);
-      },
+      }
     );
 
     // Listen for extraction events
@@ -173,7 +174,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onError }) => {
         const modelId = event.payload;
         setExtractingModels((prev) => new Set(prev.add(modelId)));
         setModelStatus("extracting");
-      },
+      }
     );
 
     const extractionCompletedUnlisten = listen<string>(
@@ -192,22 +193,22 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onError }) => {
           loadCurrentModel();
           handleModelSelect(modelId);
         }, 500);
-      },
+      }
     );
 
-    const extractionFailedUnlisten = listen<{model_id: string, error: string}>(
-      "model-extraction-failed",
-      (event) => {
-        const modelId = event.payload.model_id;
-        setExtractingModels((prev) => {
-          const next = new Set(prev);
-          next.delete(modelId);
-          return next;
-        });
-        setModelError(`Failed to extract model: ${event.payload.error}`);
-        setModelStatus("error");
-      },
-    );
+    const extractionFailedUnlisten = listen<{
+      model_id: string;
+      error: string;
+    }>("model-extraction-failed", (event) => {
+      const modelId = event.payload.model_id;
+      setExtractingModels((prev) => {
+        const next = new Set(prev);
+        next.delete(modelId);
+        return next;
+      });
+      setModelError(`Failed to extract model: ${event.payload.error}`);
+      setModelStatus("error");
+    });
 
     return () => {
       modelStateUnlisten.then((fn) => fn());
@@ -236,7 +237,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onError }) => {
       if (current) {
         // Check if model is actually loaded
         const transcriptionStatus = await invoke<string | null>(
-          "get_transcription_model_status",
+          "get_transcription_model_status"
         );
         if (transcriptionStatus === current) {
           setModelStatus("ready");
@@ -278,19 +279,16 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onError }) => {
     }
   };
 
-  const getCurrentModel = () => {
-    return models.find((m) => m.id === currentModelId);
-  };
+  const getCurrentModel = () => models.find((m) => m.id === currentModelId);
 
   const getModelDisplayText = (): string => {
     if (extractingModels.size > 0) {
       if (extractingModels.size === 1) {
         const [modelId] = Array.from(extractingModels);
-        const model = models.find(m => m.id === modelId);
-        return `Extracting ${model?.name || 'Model'}...`;
-      } else {
-        return `Extracting ${extractingModels.size} models...`;
+        const model = models.find((m) => m.id === modelId);
+        return `Extracting ${model?.name || "Model"}...`;
       }
+      return `Extracting ${extractingModels.size} models...`;
     }
 
     if (modelDownloadProgress.size > 0) {
@@ -298,12 +296,11 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onError }) => {
         const [progress] = Array.from(modelDownloadProgress.values());
         const percentage = Math.max(
           0,
-          Math.min(100, Math.round(progress.percentage)),
+          Math.min(100, Math.round(progress.percentage))
         );
         return `Downloading ${percentage}%`;
-      } else {
-        return `Downloading ${modelDownloadProgress.size} models...`;
       }
+      return `Downloading ${modelDownloadProgress.size} models...`;
     }
 
     const currentModel = getCurrentModel();
@@ -314,7 +311,9 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onError }) => {
       case "loading":
         return currentModel ? `Loading ${currentModel.name}...` : "Loading...";
       case "extracting":
-        return currentModel ? `Extracting ${currentModel.name}...` : "Extracting...";
+        return currentModel
+          ? `Extracting ${currentModel.name}...`
+          : "Extracting...";
       case "error":
         return modelError || "Model Error";
       case "unloaded":
@@ -337,15 +336,15 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onError }) => {
       {/* Model Status and Switcher */}
       <div className="relative">
         <ModelDropdown
-          models={models}
           currentModelId={currentModelId}
-          downloadProgress={modelDownloadProgress}
-          onModelSelect={handleModelSelect}
-          onModelDownload={handleModelDownload}
-          onModelDelete={handleModelDelete}
-          onError={onError}
-          status={modelStatus}
           displayText={getModelDisplayText()}
+          downloadProgress={modelDownloadProgress}
+          models={models}
+          onError={onError}
+          onModelDelete={handleModelDelete}
+          onModelDownload={handleModelDownload}
+          onModelSelect={handleModelSelect}
+          status={modelStatus}
         />
       </div>
 

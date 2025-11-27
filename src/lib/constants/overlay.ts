@@ -2,4 +2,3 @@
 
 export const OVERLAY_WIDTH = 210;
 export const OVERLAY_HEIGHT = 52;
-

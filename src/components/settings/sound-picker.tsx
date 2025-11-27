@@ -1,9 +1,9 @@
-import React from "react";
+import { PlayIcon } from "lucide-react";
+import type React from "react";
+import { useSettings } from "../../hooks/use-settings";
 import { Button } from "../ui/Button";
 import { NativeSelect, NativeSelectOption } from "../ui/native-select";
-import { PlayIcon } from "lucide-react";
 import { SettingContainer } from "../ui/SettingContainer";
-import { useSettings } from "../../hooks/use-settings";
 
 interface SoundPickerProps {
   label: string;
@@ -14,7 +14,8 @@ export const SoundPicker: React.FC<SoundPickerProps> = ({
   label,
   description,
 }) => {
-  const { getSetting, updateSetting, playTestSound, customSounds } = useSettings();
+  const { getSetting, updateSetting, playTestSound, customSounds } =
+    useSettings();
 
   const selectedTheme = getSetting("sound_theme") ?? "marimba";
 
@@ -27,17 +28,20 @@ export const SoundPicker: React.FC<SoundPickerProps> = ({
 
   return (
     <SettingContainer
-      title={label}
       description={description}
       grouped
       layout="horizontal"
+      title={label}
     >
       <div className="flex items-center gap-2">
         <NativeSelect
-          value={selectedTheme}
           onChange={(e) =>
-            updateSetting("sound_theme", e.target.value as "marimba" | "pop" | "custom")
+            updateSetting(
+              "sound_theme",
+              e.target.value as "marimba" | "pop" | "custom"
+            )
           }
+          value={selectedTheme}
         >
           <NativeSelectOption value="marimba">Marimba</NativeSelectOption>
           <NativeSelectOption value="pop">Pop</NativeSelectOption>
@@ -46,10 +50,10 @@ export const SoundPicker: React.FC<SoundPickerProps> = ({
           )}
         </NativeSelect>
         <Button
-          variant="ghost"
-          size="sm"
           onClick={handlePlayBothSounds}
+          size="sm"
           title="Preview sound theme (plays start then stop)"
+          variant="ghost"
         >
           <PlayIcon className="h-4 w-4" />
         </Button>

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { Check, Copy, Star, Trash2 } from "lucide-react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { AudioPlayer } from "@/components/ui/audio-player";
 import { Button } from "@/components/ui/Button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Copy, Star, Check, Trash2 } from "lucide-react";
 
 export interface HistoryEntry {
   id: number;
@@ -53,7 +54,7 @@ export const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
       setTimeout(() => setConfirmDelete(false), 3000);
       return;
     }
-    
+
     try {
       await deleteAudio(entry.id);
     } catch (error) {
@@ -64,53 +65,55 @@ export const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
   };
 
   return (
-    <div className="px-4 py-4 flex flex-col gap-3">
-      <div className="flex justify-between items-center">
-        <p className="text-sm font-medium">{entry.title}</p>
+    <div className="flex flex-col gap-3 px-4 py-4">
+      <div className="flex items-center justify-between">
+        <p className="font-medium text-sm">{entry.title}</p>
         <ButtonGroup>
           <Button
             onClick={handleCopyText}
-            variant="secondary"
             size="icon-xs"
             title="Copy transcription to clipboard"
+            variant="secondary"
           >
             {showCopied ? (
-              <Check width={16} height={16} />
+              <Check height={16} width={16} />
             ) : (
-              <Copy width={16} height={16} />
+              <Copy height={16} width={16} />
             )}
           </Button>
           <Button
+            className={entry.saved ? "text-brand" : ""}
             onClick={onToggleSaved}
-            variant="secondary"
             size="icon-xs"
             title={entry.saved ? "Remove from saved" : "Save transcription"}
-            className={entry.saved ? "text-brand" : ""}
+            variant="secondary"
           >
             <Star
-              width={16}
-              height={16}
               fill={entry.saved ? "currentColor" : "none"}
+              height={16}
+              width={16}
             />
           </Button>
           <Button
             onClick={handleDeleteClick}
-            variant={confirmDelete ? "ghostDestructive" : "secondary"}
             size="icon-xs"
-            title={confirmDelete ? "Click again to confirm delete" : "Delete entry"}
+            title={
+              confirmDelete ? "Click again to confirm delete" : "Delete entry"
+            }
+            variant={confirmDelete ? "ghostDestructive" : "secondary"}
           >
             {confirmDelete ? (
-              <Check width={16} height={16} />
+              <Check height={16} width={16} />
             ) : (
-              <Trash2 width={16} height={16} />
+              <Trash2 height={16} width={16} />
             )}
           </Button>
         </ButtonGroup>
       </div>
-      <p className="italic text-text/90 text-sm pb-2">
+      <p className="pb-2 text-sm text-text/90 italic">
         {entry.transcription_text}
       </p>
-      {audioUrl && <AudioPlayer src={audioUrl} className="w-full" />}
+      {audioUrl && <AudioPlayer className="w-full" src={audioUrl} />}
     </div>
   );
 };

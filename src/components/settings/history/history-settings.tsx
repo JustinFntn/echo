@@ -1,10 +1,14 @@
-import React, { useState, useEffect, ComponentProps } from "react";
-import { Button } from "@/components/ui/Button";
-import { FolderOpen } from "lucide-react";
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { FolderOpen } from "lucide-react";
+import type React from "react";
+import { type ComponentProps, useEffect, useState } from "react";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import { HistoryEntryComponent, type HistoryEntry } from "./history-entry-component";
+import {
+  type HistoryEntry,
+  HistoryEntryComponent,
+} from "./history-entry-component";
 
 export const HistorySettings: React.FC = () => {
   const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>([]);
@@ -92,15 +96,15 @@ export const HistorySettings: React.FC = () => {
 
   const renderHistoryPanel = (content: React.ReactNode) => (
     <div className="space-y-2">
-      <div className="px-4 flex items-center justify-between">
+      <div className="flex items-center justify-between px-4">
         <div>
-          <h2 className="text-xs font-medium text-text/60 uppercase tracking-wide">History</h2>
+          <h2 className="font-medium text-text/60 text-xs uppercase tracking-wide">
+            History
+          </h2>
         </div>
         <OpenRecordingsButton onClick={openRecordingsFolder} />
       </div>
-      <div>
-        {content}
-      </div>
+      <div>{content}</div>
     </div>
   );
 
@@ -108,7 +112,9 @@ export const HistorySettings: React.FC = () => {
     return (
       <div className="space-y-6">
         {renderHistoryPanel(
-          <div className="px-4 py-3 text-center text-text/60">Loading history...</div>,
+          <div className="px-4 py-3 text-center text-text/60">
+            Loading history...
+          </div>
         )}
       </div>
     );
@@ -120,7 +126,7 @@ export const HistorySettings: React.FC = () => {
         {renderHistoryPanel(
           <div className="px-4 py-3 text-center text-text/60">
             No transcriptions yet. Start recording to build your history!
-          </div>,
+          </div>
         )}
       </div>
     );
@@ -132,30 +138,34 @@ export const HistorySettings: React.FC = () => {
         <div className="divide-y divide-border/10">
           {historyEntries.map((entry) => (
             <HistoryEntryComponent
-              key={entry.id}
-              entry={entry}
-              onToggleSaved={() => toggleSaved(entry.id)}
-              onCopyText={() => copyToClipboard(entry.transcription_text)}
-              getAudioUrl={getAudioUrl}
               deleteAudio={deleteAudioEntry}
+              entry={entry}
+              getAudioUrl={getAudioUrl}
+              key={entry.id}
+              onCopyText={() => copyToClipboard(entry.transcription_text)}
+              onToggleSaved={() => toggleSaved(entry.id)}
             />
           ))}
-        </div>,
+        </div>
       )}
     </div>
   );
 };
 
-const OpenRecordingsButton = ({ onClick, className, ...props }: ComponentProps<"button">) => (
+const OpenRecordingsButton = ({
+  onClick,
+  className,
+  ...props
+}: ComponentProps<"button">) => (
   <Button
-    onClick={onClick}
-    variant="secondary"
-    size="sm"
     className={cn("flex items-center gap-2", className)}
+    onClick={onClick}
+    size="sm"
     title="Open recordings folder"
+    variant="secondary"
     {...props}
   >
-    <FolderOpen className="w-4 h-4" />
+    <FolderOpen className="h-4 w-4" />
     <span>Open Recordings Folder</span>
   </Button>
 );

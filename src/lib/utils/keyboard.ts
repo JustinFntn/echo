@@ -11,7 +11,7 @@ export type OSType = "macos" | "windows" | "linux" | "unknown";
  */
 export const getKeyName = (
   e: KeyboardEvent,
-  osType: OSType = "unknown",
+  osType: OSType = "unknown"
 ): string => {
   // Handle special cases first
   if (e.code) {
@@ -160,7 +160,7 @@ export const getKeyName = (
  */
 export const formatKeyCombination = (
   combination: string,
-  osType: OSType,
+  osType: OSType
 ): string => {
   // Simply return the combination as-is since getKeyName already provides
   // the correct platform-specific key names

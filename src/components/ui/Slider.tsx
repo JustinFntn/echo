@@ -1,5 +1,5 @@
-import { useRef } from "react";
 import { motion } from "motion/react";
+import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import { SettingContainer } from "./SettingContainer";
 
@@ -74,35 +74,37 @@ export const Slider: React.FC<SliderProps> = ({
 
   const sliderElement = (
     <div
-      ref={trackRef}
-      onMouseDown={handleMouseDown}
       className={cn(
-        "group relative flex items-center justify-between h-8 min-w-[180px] rounded-lg bg-muted overflow-hidden",
-        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        "group relative flex h-8 min-w-[180px] items-center justify-between overflow-hidden rounded-lg bg-muted",
+        disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
       )}
+      onMouseDown={handleMouseDown}
+      ref={trackRef}
     >
       {/* Fill area from left to thumb */}
       <motion.div
-        className="absolute inset-y-0 left-0 bg-foreground/6 pointer-events-none"
         animate={{ width: `calc(8px + ${percentage}% * (100% - 16px) / 100%)` }}
+        className="pointer-events-none absolute inset-y-0 left-0 bg-foreground/6"
         transition={spring}
       />
 
       {/* Thumb indicator */}
       <motion.div
-        className="absolute top-1/2 -translate-y-1/2 w-1 h-5 rounded-full pointer-events-none bg-foreground/50 group-hover:h-[22px] group-hover:bg-foreground/70 group-hover:scale-x-105 group-active:h-6 group-active:bg-foreground/90 group-active:scale-x-110 transition-[height,background-color,transform] duration-200 ease-out"
-        animate={{ left: `calc(8px + ${percentage}% * (100% - 16px) / 100% - 2px)` }}
+        animate={{
+          left: `calc(8px + ${percentage}% * (100% - 16px) / 100% - 2px)`,
+        }}
+        className="-translate-y-1/2 pointer-events-none absolute top-1/2 h-5 w-1 rounded-full bg-foreground/50 transition-[height,background-color,transform] duration-200 ease-out group-hover:h-[22px] group-hover:scale-x-105 group-hover:bg-foreground/70 group-active:h-6 group-active:scale-x-110 group-active:bg-foreground/90"
         transition={spring}
       />
 
       {/* Label on the left */}
-      <span className="relative z-10 px-3 text-xs font-medium text-foreground/45 tracking-tight pointer-events-none select-none">
+      <span className="pointer-events-none relative z-10 select-none px-3 font-medium text-foreground/45 text-xs tracking-tight">
         {label}
       </span>
 
       {/* Value on the right */}
       {showValue && (
-        <span className="relative z-10 px-3 text-sm text-foreground/50 tabular-nums pointer-events-none select-none">
+        <span className="pointer-events-none relative z-10 select-none px-3 text-foreground/50 text-sm tabular-nums">
           {formatValue(value)}
         </span>
       )}
@@ -112,13 +114,13 @@ export const Slider: React.FC<SliderProps> = ({
   if (description) {
     return (
       <SettingContainer
-        title={label}
         description={description}
         descriptionMode={descriptionMode}
-        grouped={grouped}
-        layout="horizontal"
         disabled={disabled}
+        grouped={grouped}
         icon={icon}
+        layout="horizontal"
+        title={label}
       >
         {sliderElement}
       </SettingContainer>

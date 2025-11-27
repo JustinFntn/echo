@@ -1,6 +1,6 @@
-import { atom } from "jotai";
 import { invoke } from "@tauri-apps/api/core";
-import { Settings, AudioDevice } from "../lib/types";
+import { atom } from "jotai";
+import type { AudioDevice, Settings } from "../lib/types";
 
 // Constants
 const DEFAULT_SETTINGS: Partial<Settings> = {

@@ -1,6 +1,9 @@
-import React from "react";
+import type React from "react";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/components/ui/native-select";
 import { SettingContainer } from "@/components/ui/SettingContainer";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { useSettings } from "@/hooks/use-settings";
 
 const LOG_LEVEL_OPTIONS = [
@@ -38,17 +41,17 @@ export const LogLevelSelector: React.FC<LogLevelSelectorProps> = ({
 
   return (
     <SettingContainer
-      title="Log Level"
       description="Choose how verbose Handy should be while logging to disk"
       descriptionMode={descriptionMode}
       grouped={grouped}
       layout="horizontal"
+      title="Log Level"
     >
       <div className="space-y-1">
         <NativeSelect
-          value={selectedValue}
-          onChange={handleSelect}
           disabled={!settings || isLevelUpdating}
+          onChange={handleSelect}
+          value={selectedValue}
         >
           {LOG_LEVEL_OPTIONS.map((opt) => (
             <NativeSelectOption key={opt.value} value={opt.value}>

@@ -1,7 +1,7 @@
 import { useSettings } from "../../../hooks/use-settings";
 import type { PostProcessProvider } from "../../../lib/types";
-import type { ModelOption } from "./types";
 import { getDefaultBaseUrl } from "./default-providers";
+import type { ModelOption } from "./types";
 
 type DropdownOption = {
   value: string;
@@ -48,21 +48,28 @@ export const usePostProcessProviderState = (): PostProcessProviderState => {
     postProcessModelOptions,
   } = useSettings();
 
-  const enabled = settings?.beta_features_enabled || false;
+  const enabled = settings?.beta_features_enabled;
 
   // Settings are guaranteed to have providers after migration
   const providers = settings?.post_process_providers || [];
 
-  const selectedProviderId = settings?.post_process_provider_id || providers[0]?.id || "openai";
+  const selectedProviderId =
+    settings?.post_process_provider_id || providers[0]?.id || "openai";
 
-  const selectedProvider = providers.find((provider) => provider.id === selectedProviderId) || providers[0];
+  const selectedProvider =
+    providers.find((provider) => provider.id === selectedProviderId) ||
+    providers[0];
 
   // Use settings directly as single source of truth
   const baseUrl = selectedProvider?.base_url ?? "";
   const defaultBaseUrl = getDefaultBaseUrl(selectedProviderId);
-  const isBaseUrlModified = defaultBaseUrl !== undefined && (baseUrl !== defaultBaseUrl || baseUrl === "");
-  const apiKey = (settings?.post_process_api_keys?.[selectedProviderId] ?? "") as string;
-  const model = (settings?.post_process_models?.[selectedProviderId] ?? "") as string;
+  const isBaseUrlModified =
+    defaultBaseUrl !== undefined &&
+    (baseUrl !== defaultBaseUrl || baseUrl === "");
+  const apiKey = (settings?.post_process_api_keys?.[selectedProviderId] ??
+    "") as string;
+  const model = (settings?.post_process_models?.[selectedProviderId] ??
+    "") as string;
 
   const providerOptions: DropdownOption[] = providers.map((provider) => ({
     value: provider.id,
@@ -76,7 +83,7 @@ export const usePostProcessProviderState = (): PostProcessProviderState => {
   };
 
   const handleBaseUrlChange = (value: string) => {
-    if (!selectedProvider || !selectedProvider.allow_base_url_edit) {
+    if (!(selectedProvider && selectedProvider.allow_base_url_edit)) {
       return;
     }
     const trimmed = value.trim();
@@ -86,7 +93,13 @@ export const usePostProcessProviderState = (): PostProcessProviderState => {
   };
 
   const handleBaseUrlReset = () => {
-    if (!selectedProvider || !selectedProvider.allow_base_url_edit || !defaultBaseUrl) {
+    if (
+      !(
+        selectedProvider &&
+        selectedProvider.allow_base_url_edit &&
+        defaultBaseUrl
+      )
+    ) {
       return;
     }
     if (baseUrl !== defaultBaseUrl) {
@@ -145,16 +158,16 @@ export const usePostProcessProviderState = (): PostProcessProviderState => {
   })();
 
   const isBaseUrlUpdating = isUpdating(
-    `post_process_base_url:${selectedProviderId}`,
+    `post_process_base_url:${selectedProviderId}`
   );
   const isApiKeyUpdating = isUpdating(
-    `post_process_api_key:${selectedProviderId}`,
+    `post_process_api_key:${selectedProviderId}`
   );
   const isModelUpdating = isUpdating(
-    `post_process_model:${selectedProviderId}`,
+    `post_process_model:${selectedProviderId}`
   );
   const isFetchingModels = isUpdating(
-    `post_process_models_fetch:${selectedProviderId}`,
+    `post_process_models_fetch:${selectedProviderId}`
   );
 
   // Ollama and custom providers don't require API keys

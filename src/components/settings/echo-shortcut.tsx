@@ -1,17 +1,18 @@
-import React, { useEffect, useState, useRef } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import { type } from "@tauri-apps/plugin-os";
+import { Keyboard, RotateCcw } from "lucide-react";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { useSettings } from "../../hooks/use-settings";
 import {
-  getKeyName,
   formatKeyCombination,
+  getKeyName,
   normalizeKey,
   type OSType,
 } from "../../lib/utils/keyboard";
-import { RotateCcw, Keyboard } from "lucide-react";
-import { SettingContainer } from "../ui/SettingContainer";
-import { useSettings } from "../../hooks/use-settings";
-import { invoke } from "@tauri-apps/api/core";
-import { toast } from "sonner";
 import { Button } from "../ui/Button";
+import { SettingContainer } from "../ui/SettingContainer";
 
 interface EchoShortcutProps {
   descriptionMode?: "inline" | "tooltip";
@@ -27,7 +28,7 @@ export const EchoShortcut: React.FC<EchoShortcutProps> = ({
   const [keyPressed, setKeyPressed] = useState<string[]>([]);
   const [recordedKeys, setRecordedKeys] = useState<string[]>([]);
   const [editingShortcutId, setEditingShortcutId] = useState<string | null>(
-    null,
+    null
   );
   const [originalBinding, setOriginalBinding] = useState<string>("");
   const [osType, setOsType] = useState<OSType>("unknown");
@@ -82,7 +83,7 @@ export const EchoShortcut: React.FC<EchoShortcutProps> = ({
           try {
             await updateBinding(editingShortcutId, originalBinding);
             await invoke("resume_binding", { id: editingShortcutId }).catch(
-              console.error,
+              console.error
             );
           } catch (error) {
             console.error("Failed to restore original binding:", error);
@@ -90,7 +91,7 @@ export const EchoShortcut: React.FC<EchoShortcutProps> = ({
           }
         } else if (editingShortcutId) {
           await invoke("resume_binding", { id: editingShortcutId }).catch(
-            console.error,
+            console.error
           );
         }
         setEditingShortcutId(null);
@@ -136,7 +137,7 @@ export const EchoShortcut: React.FC<EchoShortcutProps> = ({
             await updateBinding(editingShortcutId, newShortcut);
             // Re-register the shortcut now that recording is finished
             await invoke("resume_binding", { id: editingShortcutId }).catch(
-              console.error,
+              console.error
             );
           } catch (error) {
             console.error("Failed to change binding:", error);
@@ -147,7 +148,7 @@ export const EchoShortcut: React.FC<EchoShortcutProps> = ({
               try {
                 await updateBinding(editingShortcutId, originalBinding);
                 await invoke("resume_binding", { id: editingShortcutId }).catch(
-                  console.error,
+                  console.error
                 );
               } catch (resetError) {
                 console.error("Failed to reset binding:", resetError);
@@ -175,7 +176,7 @@ export const EchoShortcut: React.FC<EchoShortcutProps> = ({
           try {
             await updateBinding(editingShortcutId, originalBinding);
             await invoke("resume_binding", { id: editingShortcutId }).catch(
-              console.error,
+              console.error
             );
           } catch (error) {
             console.error("Failed to restore original binding:", error);
@@ -183,7 +184,7 @@ export const EchoShortcut: React.FC<EchoShortcutProps> = ({
           }
         } else if (editingShortcutId) {
           invoke("resume_binding", { id: editingShortcutId }).catch(
-            console.error,
+            console.error
           );
         }
         setEditingShortcutId(null);
@@ -244,13 +245,15 @@ export const EchoShortcut: React.FC<EchoShortcutProps> = ({
   if (isLoading) {
     return (
       <SettingContainer
-        title="Echo Shortcuts"
         description="Configure keyboard shortcuts to trigger speech-to-text recording"
         descriptionMode={descriptionMode}
         grouped={grouped}
-        icon={<Keyboard className="w-4 h-4" />}
+        icon={<Keyboard className="h-4 w-4" />}
+        title="Echo Shortcuts"
       >
-        <div className="text-sm text-muted-foreground">Loading shortcuts...</div>
+        <div className="text-muted-foreground text-sm">
+          Loading shortcuts...
+        </div>
       </SettingContainer>
     );
   }
@@ -259,25 +262,27 @@ export const EchoShortcut: React.FC<EchoShortcutProps> = ({
   if (Object.keys(bindings).length === 0) {
     return (
       <SettingContainer
-        title="Echo Shortcuts"
         description="Configure keyboard shortcuts to trigger speech-to-text recording"
         descriptionMode={descriptionMode}
         grouped={grouped}
-        icon={<Keyboard className="w-4 h-4" />}
+        icon={<Keyboard className="h-4 w-4" />}
+        title="Echo Shortcuts"
       >
-        <div className="text-sm text-muted-foreground">No shortcuts configured</div>
+        <div className="text-muted-foreground text-sm">
+          No shortcuts configured
+        </div>
       </SettingContainer>
     );
   }
 
   return (
     <SettingContainer
-      title="Echo Shortcut"
       description="Set the keyboard shortcut to start and stop speech-to-text recording"
       descriptionMode={descriptionMode}
       grouped={grouped}
+      icon={<Keyboard className="h-4 w-4" />}
+      title="Echo Shortcut"
       tooltipPosition="bottom"
-      icon={<Keyboard className="w-4 h-4" />}
     >
       {(() => {
         const primaryBinding = Object.values(bindings)[0];
@@ -285,43 +290,45 @@ export const EchoShortcut: React.FC<EchoShortcutProps> = ({
 
         if (!primaryBinding) {
           return (
-            <div className="text-sm text-muted-foreground">No shortcuts configured</div>
+            <div className="text-muted-foreground text-sm">
+              No shortcuts configured
+            </div>
           );
         }
 
         return (
           <div className="flex items-center space-x-1">
             {editingShortcutId === primaryId ? (
-              <Button 
-              variant="secondary"
-              size="sm"
-              // className="bg-foreground hover:bg-foreground text-background hover:text-background"
-              asChild>
-
-              <div
-                ref={(ref) => setShortcutRef(primaryId, ref)}
-                // className="px-2 py-1 text-sm font-semibold border border-brand bg-brand/30 rounded min-w-[120px] text-center"
+              <Button
+                asChild
+                size="sm"
+                // className="bg-foreground hover:bg-foreground text-background hover:text-background"
+                variant="secondary"
+              >
+                <div
+                  ref={(ref) => setShortcutRef(primaryId, ref)}
+                  // className="px-2 py-1 text-sm font-semibold border border-brand bg-brand/30 rounded min-w-[120px] text-center"
                 >
-                {formatCurrentKeys()}
-              </div>
-                </Button>
+                  {formatCurrentKeys()}
+                </div>
+              </Button>
             ) : (
               <Button
-                variant="secondary"
-                size="sm"
                 className="font-semibold"
                 onClick={() => startRecording(primaryId)}
+                size="sm"
+                variant="secondary"
               >
                 {formatKeyCombination(primaryBinding.current_binding, osType)}
               </Button>
             )}
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => resetBinding(primaryId)}
               disabled={isUpdating(`binding_${primaryId}`)}
+              onClick={() => resetBinding(primaryId)}
+              size="icon"
+              variant="ghost"
             >
-              <RotateCcw className="w-5 h-5" />
+              <RotateCcw className="h-5 w-5" />
             </Button>
           </div>
         );

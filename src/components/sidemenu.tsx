@@ -1,17 +1,28 @@
-import React from "react";
-import { Cog, FlaskConical, History, Info, Sparkles, PanelLeft, Beaker } from "lucide-react";
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import EchoLogo from "./icons/echo-logo";
-import { useSettings } from "../hooks/use-settings";
 import {
-  GeneralSettings,
-  AdvancedSettings,
-  HistorySettings,
-  DebugSettings,
+  Beaker,
+  Cog,
+  FlaskConical,
+  History,
+  Info,
+  PanelLeft,
+  Sparkles,
+} from "lucide-react";
+import type React from "react";
+import { AnimatedBackground } from "@/components/motion-primitives/animated-background";
+import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
+import { useSettings } from "../hooks/use-settings";
+import EchoLogo from "./icons/echo-logo";
+import {
   AboutSettings,
-  PostProcessingSettings,
+  AdvancedSettings,
+  DebugSettings,
   ExperimentsSettings,
+  GeneralSettings,
+  HistorySettings,
+  PostProcessingSettings,
 } from "./settings";
 import {
   Tooltip,
@@ -19,12 +30,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
-import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/utils";
-import { AnimatedBackground } from "@/components/motion-primitives/animated-background";
 
-
-const sidebarCollapsedAtom = atomWithStorage('sidebar_collapsed', true);
+const sidebarCollapsedAtom = atomWithStorage("sidebar_collapsed", true);
 
 export type SidebarSection = keyof typeof SECTIONS_CONFIG;
 
@@ -46,7 +53,14 @@ interface SectionConfig {
 // Wrapper component for EchoLogo to match IconProps interface
 const EchoLogoIcon: React.FC<IconProps> = (props) => {
   const { size, strokeWidth, ...rest } = props;
-  return <EchoLogo width={size || props.width || 20} height={size || props.height || 20} variant="sm" {...rest} />;
+  return (
+    <EchoLogo
+      height={size || props.height || 20}
+      variant="sm"
+      width={size || props.width || 20}
+      {...rest}
+    />
+  );
 };
 
 export const SECTIONS_CONFIG = {
@@ -100,8 +114,7 @@ export const Sidemenu = ({
 }: {
   activeSection: SidebarSection;
   onSectionChange: (section: SidebarSection) => void;
-}
-) => {
+}) => {
   const { settings } = useSettings();
   const [isCollapsed, setIsCollapsed] = useAtom(sidebarCollapsedAtom);
 
@@ -111,78 +124,92 @@ export const Sidemenu = ({
 
   return (
     <div className="px-2 pb-2">
-        <TooltipProvider delayDuration={0}>
+      <TooltipProvider delayDuration={0}>
+        <div
+          className={cn(
+            "flex h-full flex-col items-center rounded-2xl border border-foreground/5 bg-foreground/5 p-1 transition-all duration-200",
+            isCollapsed ? "w-16 min-w-16" : "w-40 min-w-40"
+          )}
+          data-tauri-drag-region
+        >
+          <div className="relative h-8 w-full">
+            <Button
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              className={cn(
+                "absolute top-0 rounded-lg transition-all",
+                isCollapsed
+                  ? "-translate-x-1/2 left-1/2"
+                  : "-translate-x-full left-full"
+              )}
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              variant="ghost"
+            >
+              <PanelLeft
+                className={cn("", isCollapsed ? "rotate-180" : "")}
+                height={24}
+                width={24}
+              />
+            </Button>
+          </div>
+          <div className="flex w-full flex-col items-center gap-0 px-1 pt-2">
+            <AnimatedBackground
+              className="peer w-full rounded-lg bg-foreground/10"
+              defaultValue={activeSection}
+              enableHover={true}
+              transition={{
+                type: "spring",
+                bounce: 0.2,
+                duration: 0.3,
+              }}
+            >
+              {availableSections.map((section) => {
+                const Icon = section.icon;
 
-      <div className={cn("flex flex-col h-full items-center p-1 rounded-2xl bg-foreground/5 border border-foreground/5 transition-all duration-200",isCollapsed ? 'min-w-16 w-16' : 'min-w-40 w-40')} data-tauri-drag-region>
-        <div className="relative w-full h-8">
-          <Button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            variant="ghost"
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className={cn("rounded-lg absolute top-0 transition-all", isCollapsed ? '-translate-x-1/2 left-1/2' : 'left-full -translate-x-full')}
-          >
-            <PanelLeft 
-              width={24} 
-              height={24}
-              className={cn("", isCollapsed ? 'rotate-180' : '')}
-            />
-          </Button>
-        </div>
-        <div className="flex flex-col w-full items-center gap-0 pt-2 px-1">
-          <AnimatedBackground
-            defaultValue={activeSection}
-            enableHover={true}
-            className="bg-foreground/10 rounded-lg peer w-full"
-            transition={{
-              type: "spring",
-              bounce: 0.2,
-              duration: 0.3,
-            }}
-          >
-            {availableSections.map((section) => {
-              const Icon = section.icon;
+                const button = (
+                  <button
+                    className={cn("w-full cursor-pointer")}
+                    data-id={section.id}
+                    key={section.id}
+                    onClick={() => onSectionChange(section.id)}
+                  >
+                    <div className="flex size-full h-10 w-full items-center gap-2 px-3">
+                      <Icon className="size-4" strokeWidth={2} />
 
-              const button = (
-                <button
-                  key={section.id}
-                  data-id={section.id}
-                  className={cn("w-full cursor-pointer", )}
-                  onClick={() => onSectionChange(section.id)}
-                >
-                  <div className=" size-full flex h-10 px-3 w-full items-center gap-2">
-
-                  <Icon strokeWidth={2} className="size-4" />
-
-                  <span className={cn("text-sm font-medium",
-                    isCollapsed ? "hidden": "block"
-                  )}>{section.label}</span>
-                  </div>
-
-                </button>
-              );
-
-              if (isCollapsed) {
-                return (
-                  <div key={section.id} data-id={section.id} className="w-full">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        {button}
-                      </TooltipTrigger>
-                      <TooltipContent side="right">
-                        <p>{section.label}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
+                      <span
+                        className={cn(
+                          "font-medium text-sm",
+                          isCollapsed ? "hidden" : "block"
+                        )}
+                      >
+                        {section.label}
+                      </span>
+                    </div>
+                  </button>
                 );
-              }
 
-              return button;
-            })}
-          </AnimatedBackground>
+                if (isCollapsed) {
+                  return (
+                    <div
+                      className="w-full"
+                      data-id={section.id}
+                      key={section.id}
+                    >
+                      <Tooltip>
+                        <TooltipTrigger asChild>{button}</TooltipTrigger>
+                        <TooltipContent side="right">
+                          <p>{section.label}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                  );
+                }
+
+                return button;
+              })}
+            </AnimatedBackground>
+          </div>
         </div>
-      </div>
-    </TooltipProvider>
-      </div>
-
+      </TooltipProvider>
+    </div>
   );
 };

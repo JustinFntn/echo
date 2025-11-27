@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { SettingContainer } from "../../ui/SettingContainer";
 
 interface DebugPathsProps {
@@ -9,28 +9,28 @@ interface DebugPathsProps {
 export const DebugPaths: React.FC<DebugPathsProps> = ({
   descriptionMode = "inline",
   grouped = false,
-}) => {
-  return (
-    <SettingContainer
-      title="Debug Paths"
-      description="Display internal file paths and directories for debugging purposes"
-      descriptionMode={descriptionMode}
-      grouped={grouped}
-    >
-      <div className="text-sm text-gray-600 space-y-2">
-        <div>
-          <span className="font-medium">App Data:</span>{" "}
-          <span className="font-mono text-xs">%APPDATA%/echo</span>
-        </div>
-        <div>
-          <span className="font-medium">Models:</span>{" "}
-          <span className="font-mono text-xs">%APPDATA%/echo/models</span>
-        </div>
-        <div>
-          <span className="font-medium">Settings:</span>{" "}
-          <span className="font-mono text-xs">%APPDATA%/echo/settings_store.json</span>
-        </div>
+}) => (
+  <SettingContainer
+    description="Display internal file paths and directories for debugging purposes"
+    descriptionMode={descriptionMode}
+    grouped={grouped}
+    title="Debug Paths"
+  >
+    <div className="space-y-2 text-gray-600 text-sm">
+      <div>
+        <span className="font-medium">App Data:</span>{" "}
+        <span className="font-mono text-xs">%APPDATA%/echo</span>
       </div>
-    </SettingContainer>
-  );
-};
+      <div>
+        <span className="font-medium">Models:</span>{" "}
+        <span className="font-mono text-xs">%APPDATA%/echo/models</span>
+      </div>
+      <div>
+        <span className="font-medium">Settings:</span>{" "}
+        <span className="font-mono text-xs">
+          %APPDATA%/echo/settings_store.json
+        </span>
+      </div>
+    </div>
+  </SettingContainer>
+);

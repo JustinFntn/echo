@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { TextDisplay } from "../ui";
 
 interface AppDataDirectoryProps {
@@ -22,7 +23,7 @@ export const AppDataDirectory: React.FC<AppDataDirectoryProps> = ({
         setAppDirPath(result);
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "Failed to load app directory",
+          err instanceof Error ? err.message : "Failed to load app directory"
         );
       } finally {
         setLoading(false);
@@ -40,15 +41,15 @@ export const AppDataDirectory: React.FC<AppDataDirectoryProps> = ({
   if (loading) {
     return (
       <div className="animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
-        <div className="h-8 bg-gray-100 rounded"></div>
+        <div className="mb-2 h-4 w-1/3 rounded bg-gray-200" />
+        <div className="h-8 rounded bg-gray-100" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+      <div className="rounded-lg border border-red-200 bg-red-50 p-4">
         <p className="text-red-600 text-sm">
           Error loading app directory: {error}
         </p>
@@ -58,14 +59,14 @@ export const AppDataDirectory: React.FC<AppDataDirectoryProps> = ({
 
   return (
     <TextDisplay
-      label="App Data Directory"
+      copyable={true}
       description="Main directory where application data, settings, and models are stored"
-      value={appDirPath}
       descriptionMode={descriptionMode}
       grouped={grouped}
-      copyable={true}
+      label="App Data Directory"
       monospace={true}
       onCopy={handleCopy}
+      value={appDirPath}
     />
   );
 };

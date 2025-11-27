@@ -1,33 +1,29 @@
-import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { PlusIcon, RefreshCcw, RotateCcw } from "lucide-react";
-
-import { SettingsGroup } from "../../ui/SettingsGroup";
-import { SettingContainer } from "../../ui/SettingContainer";
+import { useEffect, useState } from "react";
+import { useSettings } from "../../../hooks/use-settings";
+import type { LLMPrompt } from "../../../lib/types";
 import { Button } from "../../ui/Button";
+import { Input } from "../../ui/Input";
+import { NativeSelect, NativeSelectOption } from "../../ui/native-select";
+import { SettingContainer } from "../../ui/SettingContainer";
+import { SettingsGroup } from "../../ui/SettingsGroup";
+import { Textarea } from "../../ui/Textarea";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "../../ui/tooltip";
-import { Input } from "../../ui/Input";
-import { NativeSelect, NativeSelectOption } from "../../ui/native-select";
-import { Textarea } from "../../ui/Textarea";
-
-import { ProviderSelect } from "../post-processing-settings-api/provider-select";
-import { BaseUrlField } from "../post-processing-settings-api/base-url-field";
 import { ApiKeyField } from "../post-processing-settings-api/api-key-field";
+import { BaseUrlField } from "../post-processing-settings-api/base-url-field";
 import { ModelSelect } from "../post-processing-settings-api/model-select";
+import { ProviderSelect } from "../post-processing-settings-api/provider-select";
 import { usePostProcessProviderState } from "../post-processing-settings-api/use-post-process-provider-state";
-import { useSettings } from "../../../hooks/use-settings";
-import type { LLMPrompt } from "../../../lib/types";
 
-const DisabledNotice = ({
-  children,
-}:{ children: React.ReactNode }) => (
-  <div className="p-4 bg-muted/5 rounded-lg border border-border/20 text-center">
-    <p className="text-sm text-muted-foreground">{children}</p>
+const DisabledNotice = ({ children }: { children: React.ReactNode }) => (
+  <div className="rounded-lg border border-border/20 bg-muted/5 p-4 text-center">
+    <p className="text-muted-foreground text-sm">{children}</p>
   </div>
 );
 
@@ -71,135 +67,135 @@ const PostProcessingSettingsApiComponent: React.FC = () => {
   return (
     <>
       <SettingContainer
-        title="Provider"
         description="Select an OpenAI-compatible provider."
         descriptionMode="tooltip"
-        layout="horizontal"
         grouped={true}
+        layout="horizontal"
+        title="Provider"
       >
         <div className="flex items-center gap-2">
           <ProviderSelect
+            onChange={state.handleProviderSelect}
             options={state.providerOptions}
             value={state.selectedProviderId}
-            onChange={state.handleProviderSelect}
           />
         </div>
       </SettingContainer>
 
       <SettingContainer
-        title="Base URL"
         description="API base URL for the selected provider. Only the custom provider can be edited."
         descriptionMode="tooltip"
-        layout="stacked"
         grouped={true}
+        layout="stacked"
+        title="Base URL"
       >
         <div className="flex items-center gap-2">
           <BaseUrlField
-            value={state.baseUrl}
-            onBlur={state.handleBaseUrlChange}
-            onChange={setLocalBaseUrl}
-            placeholder="https://api.openai.com/v1"
+            className="min-w-[380px]"
             disabled={
               !state.selectedProvider?.allow_base_url_edit ||
               state.isBaseUrlUpdating
             }
-            className="min-w-[380px]"
+            onBlur={state.handleBaseUrlChange}
+            onChange={setLocalBaseUrl}
+            placeholder="https://api.openai.com/v1"
+            value={state.baseUrl}
           />
-          {isLocalBaseUrlModified && state.selectedProvider?.allow_base_url_edit && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleBaseUrlReset}
-                    disabled={state.isBaseUrlUpdating}
-                    aria-label="Reset to default"
-                    className="flex h-10 w-10 items-center justify-center"
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Reset to default: {state.defaultBaseUrl}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
+          {isLocalBaseUrlModified &&
+            state.selectedProvider?.allow_base_url_edit && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      aria-label="Reset to default"
+                      className="flex h-10 w-10 items-center justify-center"
+                      disabled={state.isBaseUrlUpdating}
+                      onClick={handleBaseUrlReset}
+                      size="icon"
+                      variant="ghost"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Reset to default: {state.defaultBaseUrl}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
         </div>
       </SettingContainer>
 
       <SettingContainer
-        title="API Key"
         description={
           state.isLocalProvider
             ? "API key is optional for local providers like Ollama."
             : "API key for the selected provider."
         }
         descriptionMode="tooltip"
-        layout="horizontal"
         grouped={true}
+        layout="horizontal"
+        title="API Key"
       >
         <div className="flex items-center gap-2">
           <ApiKeyField
-            value={state.apiKey}
+            className="min-w-[320px]"
+            disabled={state.isApiKeyUpdating}
             onBlur={state.handleApiKeyChange}
             placeholder={state.isLocalProvider ? "(optional)" : "sk-..."}
-            disabled={state.isApiKeyUpdating}
-            className="min-w-[320px]"
+            value={state.apiKey}
           />
         </div>
       </SettingContainer>
 
       <SettingContainer
-        title="Model"
         description={
           state.isLocalProvider
             ? "Provide the model identifier expected by your endpoint (e.g., llama3.2 for Ollama)."
             : "Choose a model exposed by the selected provider."
         }
         descriptionMode="tooltip"
-        layout="stacked"
         grouped={true}
+        layout="stacked"
+        title="Model"
       >
         <div className="flex items-center gap-2">
           <ModelSelect
-            value={state.model}
-            options={state.modelOptions}
+            className="min-w-[380px] flex-1"
             disabled={state.isModelUpdating}
             isLoading={state.isFetchingModels}
+            onBlur={() => {}}
+            onCreate={state.handleModelCreate}
+            onSelect={state.handleModelSelect}
+            options={state.modelOptions}
             placeholder={
               state.modelOptions.length > 0
                 ? "Search or select a model"
                 : "Type a model name"
             }
-            onSelect={state.handleModelSelect}
-            onCreate={state.handleModelCreate}
-            onBlur={() => {}}
-            className="flex-1 min-w-[380px]"
+            value={state.model}
           />
           <TooltipProvider>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={state.handleRefreshModels}
-                disabled={state.isFetchingModels}
-                aria-label="Refresh models"
-                className="flex h-10 w-10 items-center justify-center"
-              >
-                <RefreshCcw
-                  className={`h-4 w-4 ${state.isFetchingModels ? "animate-spin" : ""}`}
-                />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Fetch available models from the provider</p>
-            </TooltipContent>
-          </Tooltip>
-                </TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  aria-label="Refresh models"
+                  className="flex h-10 w-10 items-center justify-center"
+                  disabled={state.isFetchingModels}
+                  onClick={state.handleRefreshModels}
+                  size="icon"
+                  variant="ghost"
+                >
+                  <RefreshCcw
+                    className={`h-4 w-4 ${state.isFetchingModels ? "animate-spin" : ""}`}
+                  />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Fetch available models from the provider</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </SettingContainer>
     </>
@@ -243,7 +239,7 @@ const PostProcessingSettingsPromptsComponent: React.FC = () => {
   };
 
   const handleCreatePrompt = async () => {
-    if (!draftName.trim() || !draftText.trim()) return;
+    if (!(draftName.trim() && draftText.trim())) return;
 
     try {
       const newPrompt = await invoke<LLMPrompt>("add_post_process_prompt", {
@@ -259,7 +255,7 @@ const PostProcessingSettingsPromptsComponent: React.FC = () => {
   };
 
   const handleUpdatePrompt = async () => {
-    if (!selectedPromptId || !draftName.trim() || !draftText.trim()) return;
+    if (!(selectedPromptId && draftName.trim() && draftText.trim())) return;
 
     try {
       await invoke("update_post_process_prompt", {
@@ -319,24 +315,28 @@ const PostProcessingSettingsPromptsComponent: React.FC = () => {
 
   return (
     <SettingContainer
-      title="Selected Prompt"
       description="Select a template for refining transcriptions or create a new one. Use ${output} inside the prompt text to reference the captured transcript."
       descriptionMode="tooltip"
-      layout="stacked"
       grouped={true}
+      layout="stacked"
+      title="Selected Prompt"
     >
       <div className="space-y-3">
         <div className="flex gap-2">
           <NativeSelect
-            value={selectedPromptId || ""}
-            onChange={(e) => handlePromptSelect(e.target.value)}
-            disabled={
-              isUpdating("post_process_selected_prompt_id") || isCreating || prompts.length === 0
-            }
             className="flex-1"
+            disabled={
+              isUpdating("post_process_selected_prompt_id") ||
+              isCreating ||
+              prompts.length === 0
+            }
+            onChange={(e) => handlePromptSelect(e.target.value)}
+            value={selectedPromptId || ""}
           >
-            <NativeSelectOption value="" disabled>
-              {prompts.length === 0 ? "No prompts available" : "Select a prompt"}
+            <NativeSelectOption disabled value="">
+              {prompts.length === 0
+                ? "No prompts available"
+                : "Select a prompt"}
             </NativeSelectOption>
             {prompts.map((p) => (
               <NativeSelectOption key={p.id} value={p.id}>
@@ -344,49 +344,43 @@ const PostProcessingSettingsPromptsComponent: React.FC = () => {
               </NativeSelectOption>
             ))}
           </NativeSelect>
-<TooltipProvider>
-<Tooltip>
-  <TooltipTrigger asChild>
-
-          <Button
-            onClick={handleStartCreate}
-            disabled={isCreating}
-            >
-            <PlusIcon />
-          </Button>
-          </TooltipTrigger>
-            <TooltipContent>
-              Create a new prompt
-            </TooltipContent>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button disabled={isCreating} onClick={handleStartCreate}>
+                  <PlusIcon />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Create a new prompt</TooltipContent>
             </Tooltip>
-            </TooltipProvider>
+          </TooltipProvider>
         </div>
 
         {!isCreating && hasPrompts && selectedPrompt && (
           <div className="space-y-3">
-            <div className="space-y-2 flex flex-col">
-              <label className="text-sm font-semibold">Prompt Label</label>
+            <div className="flex flex-col space-y-2">
+              <label className="font-semibold text-sm">Prompt Label</label>
               <Input
-                type="text"
-                value={draftName}
                 onChange={(e) => setDraftName(e.target.value)}
                 placeholder="Enter prompt name"
+                type="text"
+                value={draftName}
               />
             </div>
 
-            <div className="space-y-2 flex flex-col">
-              <label className="text-sm font-semibold">
+            <div className="flex flex-col space-y-2">
+              <label className="font-semibold text-sm">
                 Prompt Instructions
               </label>
               <Textarea
-                value={draftText}
                 className="min-h-32"
                 onChange={(e) => setDraftText(e.target.value)}
                 placeholder="Write the instructions to run after transcription. Example: Improve grammar and clarity for the following text: ${output}"
+                value={draftText}
               />
-              <p className="text-xs text-muted-foreground/70">
+              <p className="text-muted-foreground/70 text-xs">
                 Tip: Use{" "}
-                <code className="px-1 py-0.5 bg-muted/20 rounded text-xs">
+                <code className="rounded bg-muted/20 px-1 py-0.5 text-xs">
                   $&#123;output&#125;
                 </code>{" "}
                 to insert the transcribed text in your prompt.
@@ -395,15 +389,15 @@ const PostProcessingSettingsPromptsComponent: React.FC = () => {
 
             <div className="flex gap-2 pt-2">
               <Button
+                disabled={!(draftName.trim() && draftText.trim() && isDirty)}
                 onClick={handleUpdatePrompt}
-                disabled={!draftName.trim() || !draftText.trim() || !isDirty}
               >
                 Update Prompt
               </Button>
               <Button
+                disabled={!selectedPromptId || prompts.length <= 1}
                 onClick={() => handleDeletePrompt(selectedPromptId)}
                 variant="secondary"
-                disabled={!selectedPromptId || prompts.length <= 1}
               >
                 Delete Prompt
               </Button>
@@ -411,9 +405,9 @@ const PostProcessingSettingsPromptsComponent: React.FC = () => {
           </div>
         )}
 
-        {!isCreating && !selectedPrompt && (
-          <div className="p-3 bg-muted/5 rounded border border-border/20">
-            <p className="text-sm text-muted-foreground">
+        {!(isCreating || selectedPrompt) && (
+          <div className="rounded border border-border/20 bg-muted/5 p-3">
+            <p className="text-muted-foreground text-sm">
               {hasPrompts
                 ? "Select a prompt above to view and edit its details."
                 : "Click 'Create New Prompt' above to create your first post-processing prompt."}
@@ -423,30 +417,30 @@ const PostProcessingSettingsPromptsComponent: React.FC = () => {
 
         {isCreating && (
           <div className="space-y-3">
-            <div className="space-y-2 flex flex-col">
-              <label className="text-sm font-semibold text-text">
+            <div className="flex flex-col space-y-2">
+              <label className="font-semibold text-sm text-text">
                 Prompt Label
               </label>
               <Input
-                type="text"
-                value={draftName}
                 onChange={(e) => setDraftName(e.target.value)}
                 placeholder="Enter prompt name"
+                type="text"
+                value={draftName}
               />
             </div>
 
-            <div className="space-y-2 flex flex-col">
-              <label className="text-sm font-semibold">
+            <div className="flex flex-col space-y-2">
+              <label className="font-semibold text-sm">
                 Prompt Instructions
               </label>
               <Textarea
-                value={draftText}
                 onChange={(e) => setDraftText(e.target.value)}
                 placeholder="Write the instructions to run after transcription. Example: Improve grammar and clarity for the following text: ${output}"
+                value={draftText}
               />
-              <p className="text-xs text-muted-foreground/70">
+              <p className="text-muted-foreground/70 text-xs">
                 Tip: Use{" "}
-                <code className="px-1 py-0.5 bg-muted/20 rounded text-xs">
+                <code className="rounded bg-muted/20 px-1 py-0.5 text-xs">
                   $&#123;output&#125;
                 </code>{" "}
                 to insert the transcribed text in your prompt.
@@ -455,15 +449,12 @@ const PostProcessingSettingsPromptsComponent: React.FC = () => {
 
             <div className="flex gap-2 pt-2">
               <Button
+                disabled={!(draftName.trim() && draftText.trim())}
                 onClick={handleCreatePrompt}
-                disabled={!draftName.trim() || !draftText.trim()}
               >
                 Create Prompt
               </Button>
-              <Button
-                onClick={handleCancelCreate}
-                variant="secondary"
-              >
+              <Button onClick={handleCancelCreate} variant="secondary">
                 Cancel
               </Button>
             </div>
@@ -481,16 +472,14 @@ export const PostProcessingSettingsPrompts =
   PostProcessingSettingsPromptsComponent;
 PostProcessingSettingsPrompts.displayName = "PostProcessingSettingsPrompts";
 
-export const PostProcessingSettings: React.FC = () => {
-  return (
-    <div className="max-w-3xl w-full mx-auto space-y-6">
-      <SettingsGroup title="API (OpenAI Compatible)">
-        <PostProcessingSettingsApi />
-      </SettingsGroup>
+export const PostProcessingSettings: React.FC = () => (
+  <div className="mx-auto w-full max-w-3xl space-y-6">
+    <SettingsGroup title="API (OpenAI Compatible)">
+      <PostProcessingSettingsApi />
+    </SettingsGroup>
 
-      <SettingsGroup title="Prompt">
-        <PostProcessingSettingsPrompts />
-      </SettingsGroup>
-    </div>
-  );
-};
+    <SettingsGroup title="Prompt">
+      <PostProcessingSettingsPrompts />
+    </SettingsGroup>
+  </div>
+);

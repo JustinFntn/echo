@@ -1,10 +1,10 @@
 "use client";
 
-import { useHasTouchPrimary } from "@/hooks/use-has-touch-primary";
-import { cn } from "@/lib/utils";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import type { ComponentProps } from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useHasTouchPrimary } from "@/hooks/use-has-touch-primary";
+import { cn } from "@/lib/utils";
 
 const ScrollAreaContext = createContext<boolean>(false);
 type MaskState = {
@@ -80,7 +80,6 @@ const ScrollArea = ({
     };
   }, []);
 
-
   return (
     <ScrollAreaContext.Provider value={isTouch}>
       {isTouch ? (
@@ -96,10 +95,18 @@ const ScrollArea = ({
           <div
             className={cn(
               "size-full overflow-auto rounded-[inherit]",
-              maskState.top && !disableMaskingSide.includes("top") && "mask-t-from-[calc(100%-2rem)]",
-              maskState.bottom && !disableMaskingSide.includes("bottom") && "mask-b-from-[calc(100%-2rem)]",
-              maskState.left && !disableMaskingSide.includes("left") && "mask-l-from-[calc(100%-2rem)]",
-              maskState.right && !disableMaskingSide.includes("right") && "mask-r-from-[calc(100%-2rem)]",
+              maskState.top &&
+                !disableMaskingSide.includes("top") &&
+                "mask-t-from-[calc(100%-2rem)]",
+              maskState.bottom &&
+                !disableMaskingSide.includes("bottom") &&
+                "mask-b-from-[calc(100%-2rem)]",
+              maskState.left &&
+                !disableMaskingSide.includes("left") &&
+                "mask-l-from-[calc(100%-2rem)]",
+              maskState.right &&
+                !disableMaskingSide.includes("right") &&
+                "mask-r-from-[calc(100%-2rem)]",
               viewportClassName
             )}
             data-slot="scroll-area-viewport"
@@ -121,10 +128,18 @@ const ScrollArea = ({
           <ScrollAreaPrimitive.Viewport
             className={cn(
               "size-full rounded-[inherit]",
-              maskState.top && !disableMaskingSide.includes("top") && "mask-t-from-[calc(100%-2rem)]",
-              maskState.bottom && !disableMaskingSide.includes("bottom") && "mask-b-from-[calc(100%-2rem)]",
-              maskState.left && !disableMaskingSide.includes("left") && "mask-l-from-[calc(100%-2rem)]",
-              maskState.right && !disableMaskingSide.includes("right") && "mask-r-from-[calc(100%-2rem)]",
+              maskState.top &&
+                !disableMaskingSide.includes("top") &&
+                "mask-t-from-[calc(100%-2rem)]",
+              maskState.bottom &&
+                !disableMaskingSide.includes("bottom") &&
+                "mask-b-from-[calc(100%-2rem)]",
+              maskState.left &&
+                !disableMaskingSide.includes("left") &&
+                "mask-l-from-[calc(100%-2rem)]",
+              maskState.right &&
+                !disableMaskingSide.includes("right") &&
+                "mask-r-from-[calc(100%-2rem)]",
               viewportClassName
             )}
             data-slot="scroll-area-viewport"
@@ -171,7 +186,7 @@ const ScrollBar = ({
     >
       <ScrollAreaPrimitive.ScrollAreaThumb
         className={cn(
-          "relative flex-1 origin-center rounded-full bg-foreground/10 transition-[scale] z-9999",
+          "relative z-9999 flex-1 origin-center rounded-full bg-foreground/10 transition-[scale]",
           orientation === "vertical" && "my-1 active:scale-y-95",
           orientation === "horizontal" && "active:scale-x-98"
         )}

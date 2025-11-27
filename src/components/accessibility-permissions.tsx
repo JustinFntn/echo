@@ -76,16 +76,16 @@ export const AccessibilityPermissions = () => {
   const config = buttonConfig[permissionState] as ButtonConfig;
 
   return (
-    <div className="p-4 w-full rounded-lg border border-border flex flex-col items-center gap-4">
-      <div className="flex justify-between items-center gap-2">
+    <div className="flex w-full flex-col items-center gap-4 rounded-lg border border-border p-4">
+      <div className="flex items-center justify-between gap-2">
         <div className="">
-          <p className="text-sm font-medium">
+          <p className="font-medium text-sm">
             Please grant accessibility permissions for Echo
           </p>
         </div>
         <button
-          onClick={handleButtonClick}
           className={`min-h-10 ${config.className}`}
+          onClick={handleButtonClick}
         >
           {config.text}
         </button>

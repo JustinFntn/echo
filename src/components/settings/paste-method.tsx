@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Clipboard } from "lucide-react";
 import { type as getOsType } from "@tauri-apps/plugin-os";
-import { NativeSelect, NativeSelectOption } from "../ui/native-select";
-import { SettingContainer } from "../ui/SettingContainer";
+import { Clipboard } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useSettings } from "../../hooks/use-settings";
 import type { PasteMethod } from "../../lib/types";
+import { NativeSelect, NativeSelectOption } from "../ui/native-select";
+import { SettingContainer } from "../ui/SettingContainer";
 
 interface PasteMethodProps {
   descriptionMode?: "inline" | "tooltip";
@@ -28,41 +28,44 @@ const getPasteMethodOptions = (osType: string) => {
   return baseOptions;
 };
 
-export const PasteMethodSetting = ({ descriptionMode = "tooltip", grouped = false }: PasteMethodProps) => {
-    const { getSetting, updateSetting, isUpdating } = useSettings();
-    const [osType, setOsType] = useState<string>("unknown");
+export const PasteMethodSetting = ({
+  descriptionMode = "tooltip",
+  grouped = false,
+}: PasteMethodProps) => {
+  const { getSetting, updateSetting, isUpdating } = useSettings();
+  const [osType, setOsType] = useState<string>("unknown");
 
-    useEffect(() => {
-      setOsType(getOsType());
-    }, []);
+  useEffect(() => {
+    setOsType(getOsType());
+  }, []);
 
-    const selectedMethod = (getSetting("paste_method") ||
-      "ctrl_v") as PasteMethod;
+  const selectedMethod = (getSetting("paste_method") ||
+    "ctrl_v") as PasteMethod;
 
-    const pasteMethodOptions = getPasteMethodOptions(osType);
+  const pasteMethodOptions = getPasteMethodOptions(osType);
 
-    return (
-      <SettingContainer
-        title="Paste Method"
-        description="Clipboard (Ctrl+V) simulates Ctrl/Cmd+V keystrokes to paste from your clipboard. Direct tries to use system input methods if possible, otherwise inputs keystrokes one by one into the text field. Clipboard (Shift+Insert) uses the more universal Shift+Insert shortcut, ideal for terminal applications and SSH clients."
-        descriptionMode={descriptionMode}
-        grouped={grouped}
-        tooltipPosition="bottom"
-        icon={<Clipboard className="w-4 h-4" />}
+  return (
+    <SettingContainer
+      description="Clipboard (Ctrl+V) simulates Ctrl/Cmd+V keystrokes to paste from your clipboard. Direct tries to use system input methods if possible, otherwise inputs keystrokes one by one into the text field. Clipboard (Shift+Insert) uses the more universal Shift+Insert shortcut, ideal for terminal applications and SSH clients."
+      descriptionMode={descriptionMode}
+      grouped={grouped}
+      icon={<Clipboard className="h-4 w-4" />}
+      title="Paste Method"
+      tooltipPosition="bottom"
+    >
+      <NativeSelect
+        disabled={isUpdating("paste_method")}
+        onChange={(e) =>
+          updateSetting("paste_method", e.target.value as PasteMethod)
+        }
+        value={selectedMethod}
       >
-        <NativeSelect
-          value={selectedMethod}
-          onChange={(e) =>
-            updateSetting("paste_method", e.target.value as PasteMethod)
-          }
-          disabled={isUpdating("paste_method")}
-        >
-          {pasteMethodOptions.map((option) => (
-            <NativeSelectOption key={option.value} value={option.value}>
-              {option.label}
-            </NativeSelectOption>
-          ))}
-        </NativeSelect>
-      </SettingContainer>
-    );
-  }
+        {pasteMethodOptions.map((option) => (
+          <NativeSelectOption key={option.value} value={option.value}>
+            {option.label}
+          </NativeSelectOption>
+        ))}
+      </NativeSelect>
+    </SettingContainer>
+  );
+};

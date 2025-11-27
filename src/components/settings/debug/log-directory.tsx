@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { SettingContainer } from "../../ui/SettingContainer";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../ui/Button";
+import { SettingContainer } from "../../ui/SettingContainer";
 
 interface LogDirectoryProps {
   descriptionMode?: "tooltip" | "inline";
@@ -46,31 +47,31 @@ export const LogDirectory: React.FC<LogDirectoryProps> = ({
 
   return (
     <SettingContainer
-      title="Log Directory"
       description="Location on disk where Handy writes rotated log files"
       descriptionMode={descriptionMode}
       grouped={grouped}
       layout="stacked"
+      title="Log Directory"
     >
       {loading ? (
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-100 rounded" />
+          <div className="h-8 rounded bg-gray-100" />
         </div>
       ) : error ? (
-        <div className="p-3 bg-red-50 border border-red-200 rounded text-xs text-red-600">
+        <div className="rounded border border-red-200 bg-red-50 p-3 text-red-600 text-xs">
           Error loading log directory: {error}
         </div>
       ) : (
         <div className="flex items-center gap-2">
-          <div className="flex-1 min-w-0 px-2 py-2 bg-mid-gray/10 border border-mid-gray/80 rounded text-xs font-mono break-all">
+          <div className="min-w-0 flex-1 break-all rounded border border-mid-gray/80 bg-mid-gray/10 px-2 py-2 font-mono text-xs">
             {logDir}
           </div>
           <Button
-            onClick={handleOpen}
-            variant="secondary"
-            size="sm"
-            disabled={!logDir}
             className="px-3 py-2"
+            disabled={!logDir}
+            onClick={handleOpen}
+            size="sm"
+            variant="secondary"
           >
             Open
           </Button>

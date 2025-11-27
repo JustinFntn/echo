@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { NativeSelect, NativeSelectOption } from "../../ui/native-select";
 
 interface DropdownOption {
@@ -18,21 +18,19 @@ export const ProviderSelect: React.FC<ProviderSelectProps> = ({
   value,
   onChange,
   disabled,
-}) => {
-  return (
-    <NativeSelect
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      disabled={disabled}
-      className="flex-1"
-    >
-      {options.map((option) => (
-        <NativeSelectOption key={option.value} value={option.value}>
-          {option.label}
-        </NativeSelectOption>
-      ))}
-    </NativeSelect>
-  );
-};
+}) => (
+  <NativeSelect
+    className="flex-1"
+    disabled={disabled}
+    onChange={(e) => onChange(e.target.value)}
+    value={value}
+  >
+    {options.map((option) => (
+      <NativeSelectOption key={option.value} value={option.value}>
+        {option.label}
+      </NativeSelectOption>
+    ))}
+  </NativeSelect>
+);
 
 ProviderSelect.displayName = "ProviderSelect";

@@ -1,10 +1,10 @@
+import { motion } from "motion/react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
-import { motion } from "motion/react"
+} from "@/components/ui/accordion";
 
 const faqs = [
   {
@@ -27,29 +27,29 @@ const faqs = [
     answer:
       "Echo is open-source software. You can download and use it for free.",
   },
-]
+];
 
 export function LandingFaq() {
   return (
-    <section className="py-20 bg-background text-foreground">
-      <div className="container mx-auto px-4 max-w-3xl">
-        <motion.h2 
+    <section className="bg-background py-20 text-foreground">
+      <div className="container mx-auto max-w-3xl px-4">
+        <motion.h2
+          className="mb-10 w-full text-center font-medium text-4xl tracking-tighter"
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mb-10 w-full text-center text-4xl tracking-tighter font-medium"
+          viewport={{ once: true }}
+          whileInView={{ opacity: 1, y: 0 }}
         >
           Frequently Asked Questions
         </motion.h2>
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion className="w-full" collapsible type="single">
           {faqs.map((faq, index) => (
             <motion.div
-              key={index}
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
+              key={index}
               transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              whileInView={{ opacity: 1, y: 0 }}
             >
               <AccordionItem value={`item-${index}`}>
                 <AccordionTrigger>{faq.question}</AccordionTrigger>
@@ -60,5 +60,5 @@ export function LandingFaq() {
         </Accordion>
       </div>
     </section>
-  )
+  );
 }

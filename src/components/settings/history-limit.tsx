@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { useSettings } from "../../hooks/use-settings";
 import { InputGroup, InputGroupInputNumber } from "../ui/input-group";
 import { SettingContainer } from "../ui/SettingContainer";
@@ -17,7 +17,7 @@ export const HistoryLimit: React.FC<HistoryLimitProps> = ({
   const historyLimit = getSetting("history_limit") ?? 5;
 
   const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value, 10);
+    const value = Number.parseInt(event.target.value, 10);
     if (!isNaN(value) && value >= 0) {
       updateSetting("history_limit", value);
     }
@@ -37,23 +37,23 @@ export const HistoryLimit: React.FC<HistoryLimitProps> = ({
 
   return (
     <SettingContainer
-      title="History Limit"
       description="Maximum number of transcription entries to keep in history"
       descriptionMode={descriptionMode}
       grouped={grouped}
       layout="horizontal"
+      title="History Limit"
     >
       <InputGroup className="w-auto">
         <InputGroupInputNumber
-          min={0}
-          max={1000}
-          value={historyLimit}
-          onChange={handleChange}
-          disabled={isUpdating("history_limit")}
           className="w-16"
-          onIncrement={handleIncrement}
+          disabled={isUpdating("history_limit")}
+          max={1000}
+          min={0}
+          onChange={handleChange}
           onDecrement={handleDecrement}
+          onIncrement={handleIncrement}
           suffix="entries"
+          value={historyLimit}
         />
       </InputGroup>
     </SettingContainer>

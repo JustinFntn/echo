@@ -1,15 +1,15 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { useEffect, useState } from "react";
 import { XIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { LiveWaveform } from "@/components/ui/live-waveform";
 import "./recording-overlay.css";
-import { cn } from "@/lib/utils";
-import { useHotkeys } from 'react-hotkeys-hook'
+import { motion } from "motion/react";
 import { Button } from "@/components/ui/Button";
 import { OVERLAY_HEIGHT, OVERLAY_WIDTH } from "@/lib/constants/overlay";
-import { motion } from "motion/react";
+import { cn } from "@/lib/utils";
 import { useTheme } from "@/providers";
+
 type OverlayState = "recording" | "transcribing";
 
 const RecordingOverlay = () => {
@@ -65,30 +65,36 @@ const RecordingOverlay = () => {
     // Cleanup: unregister escape shortcut when component unmounts
     return () => {
       invoke("unregister_escape_shortcut").catch((error) => {
-        console.error("Failed to unregister escape shortcut on cleanup:", error);
+        console.error(
+          "Failed to unregister escape shortcut on cleanup:",
+          error
+        );
       });
     };
-  }, [isVisible]);  
+  }, [isVisible]);
 
   return (
-    <motion.div 
-      className={cn("bg-background justify-center px-1 items-center flex border border-foreground/10 rounded-xl relative", !isVisible && "pointer-events-none")}
-      style={{
-        height: `${OVERLAY_HEIGHT}px`,
-        width: `${OVERLAY_WIDTH}px`,
-        // boxSizing: "border-box"
+    <motion.div
+      animate={{
+        opacity: isVisible ? 1 : 0,
+        filter: isVisible ? "blur(0px)" : "blur(12px)",
+        // scale: 1,
+        // y: 0
       }}
-      initial={{ 
-        opacity: 0, 
+      className={cn(
+        "relative flex items-center justify-center rounded-xl border border-foreground/10 bg-background px-1",
+        !isVisible && "pointer-events-none"
+      )}
+      initial={{
+        opacity: 0,
         filter: "blur(12px)",
         // scale: 1,
         // y: 0
       }}
-      animate={{ 
-        opacity: isVisible ? 1 : 0, 
-        filter: isVisible ? "blur(0px)" : "blur(12px)",
-        // scale: 1,
-        // y: 0
+      style={{
+        height: `${OVERLAY_HEIGHT}px`,
+        width: `${OVERLAY_WIDTH}px`,
+        // boxSizing: "border-box"
       }}
       transition={{
         type: "spring",
@@ -98,7 +104,7 @@ const RecordingOverlay = () => {
         opacity: {
           type: "spring",
           stiffness: 400,
-          damping: 35
+          damping: 35,
         },
       }}
     >
@@ -107,33 +113,34 @@ const RecordingOverlay = () => {
 
       <LiveWaveform
         active={state === "recording" && isVisible}
-        processing={state === "transcribing" && isVisible}
         audioLevels={audioLevels}
-        disableInternalAudio={true}
-        // height={OVERLAY_HEIGHT}
-        className=" flex-1 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-        barWidth={4}
-        barGap={1}
-        style={{ height: `${OVERLAY_HEIGHT}px`, width: `${OVERLAY_WIDTH-10}px` }}
         barColor={resolvedTheme === "dark" ? "#ffffff" : "#000000"}
-        mode="static"
+        barGap={1}
+        // height={OVERLAY_HEIGHT}
+        barRadius={99}
+        barWidth={4}
+        className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 flex-1"
+        disableInternalAudio={true}
         fadeEdges={true}
         fadeWidth={20}
+        mode="static"
+        processing={state === "transcribing" && isVisible}
         smoothingTimeConstant={0.7}
-        barRadius={99}
-        />
-        {/* </div> */}
-
-
+        style={{
+          height: `${OVERLAY_HEIGHT}px`,
+          width: `${OVERLAY_WIDTH - 10}px`,
+        }}
+      />
+      {/* </div> */}
 
       {state === "recording" && (
         <Button
-        className="absolute rounded-full top-px right-px"
-          variant="ghost"
-          size="icon-2xs"
+          className="absolute top-px right-px rounded-full"
           onClick={() => {
             invoke("cancel_operation");
           }}
+          size="icon-2xs"
+          variant="ghost"
         >
           <XIcon className="size-3! text-muted-foreground" />
         </Button>

@@ -1,12 +1,12 @@
-import React from "react";
-import { MicrophoneSelector } from "../microphone-selector";
-import { LanguageSelector } from "../language-selector";
-import { EchoShortcut } from "../echo-shortcut";
+import type React from "react";
+import { useSettings } from "../../../hooks/use-settings";
 import { SettingsGroup } from "../../ui/SettingsGroup";
+import { AudioFeedback } from "../audio-feedback";
+import { EchoShortcut } from "../echo-shortcut";
+import { LanguageSelector } from "../language-selector";
+import { MicrophoneSelector } from "../microphone-selector";
 import { OutputDeviceSelector } from "../output-device-selector";
 import { PushToTalk } from "../push-to-talk";
-import { AudioFeedback } from "../audio-feedback";
-import { useSettings } from "../../../hooks/use-settings";
 import { VolumeSlider } from "../volume-slider";
 
 export const GeneralSettings: React.FC = () => {
@@ -23,8 +23,8 @@ export const GeneralSettings: React.FC = () => {
         <AudioFeedback descriptionMode="tooltip" grouped={true} />
         <OutputDeviceSelector
           descriptionMode="tooltip"
-          grouped={true}
           disabled={!audioFeedbackEnabled}
+          grouped={true}
         />
         <VolumeSlider disabled={!audioFeedbackEnabled} />
       </SettingsGroup>

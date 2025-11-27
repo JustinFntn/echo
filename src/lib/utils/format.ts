@@ -1,5 +1,5 @@
 export const formatModelSize = (sizeMb: number | null | undefined): string => {
-  if (!sizeMb || !Number.isFinite(sizeMb) || sizeMb <= 0) {
+  if (!(sizeMb && Number.isFinite(sizeMb)) || sizeMb <= 0) {
     return "Unknown size";
   }
 

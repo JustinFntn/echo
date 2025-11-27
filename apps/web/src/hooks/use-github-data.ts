@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 
 interface GithubData {
   stars: number | null;
@@ -31,7 +31,7 @@ export function useGithubData() {
       .then((res) => res.json())
       .then((repoData) => {
         if (repoData.stargazers_count !== undefined) {
-            setData((prev) => ({ ...prev, stars: repoData.stargazers_count }));
+          setData((prev) => ({ ...prev, stars: repoData.stargazers_count }));
         }
       })
       .catch((err) => console.error("Failed to fetch repo data", err));
@@ -44,11 +44,21 @@ export function useGithubData() {
         if (!assets) return;
 
         const links = {
-          macSilicon: assets.find((a: any) => a.name.endsWith("_aarch64.dmg"))?.browser_download_url || "",
-          macIntel: assets.find((a: any) => a.name.endsWith("_x64.dmg"))?.browser_download_url || "",
-          windows: assets.find((a: any) => a.name.endsWith("_x64_en-US.msi"))?.browser_download_url || "",
-          linuxAppImage: assets.find((a: any) => a.name.endsWith(".AppImage"))?.browser_download_url || "",
-          linuxDeb: assets.find((a: any) => a.name.endsWith(".deb"))?.browser_download_url || "",
+          macSilicon:
+            assets.find((a: any) => a.name.endsWith("_aarch64.dmg"))
+              ?.browser_download_url || "",
+          macIntel:
+            assets.find((a: any) => a.name.endsWith("_x64.dmg"))
+              ?.browser_download_url || "",
+          windows:
+            assets.find((a: any) => a.name.endsWith("_x64_en-US.msi"))
+              ?.browser_download_url || "",
+          linuxAppImage:
+            assets.find((a: any) => a.name.endsWith(".AppImage"))
+              ?.browser_download_url || "",
+          linuxDeb:
+            assets.find((a: any) => a.name.endsWith(".deb"))
+              ?.browser_download_url || "",
         };
 
         setData((prev) => ({

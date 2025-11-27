@@ -1,28 +1,28 @@
-import { useEffect } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
+import { useEffect } from "react";
+import type { AudioDevice, Settings } from "../lib/types";
 import {
-  settingsAtom,
+  audioDevicesAtom,
+  customSoundsAtom,
+  fetchPostProcessModelsAtom,
+  initializeAtom,
   isLoadingAtom,
   isUpdatingAtom,
-  audioDevicesAtom,
   outputDevicesAtom,
+  playTestSoundAtom,
   postProcessModelOptionsAtom,
-  initializeAtom,
-  updateSettingAtom,
-  resetSettingAtom,
-  refreshSettingsAtom,
   refreshAudioDevicesAtom,
   refreshOutputDevicesAtom,
-  updateBindingAtom,
+  refreshSettingsAtom,
   resetBindingAtom,
+  resetSettingAtom,
   setPostProcessProviderAtom,
-  updatePostProcessSettingAtom,
+  settingsAtom,
+  updateBindingAtom,
   updatePostProcessApiKeyAtom,
-  fetchPostProcessModelsAtom,
-  playTestSoundAtom,
-  customSoundsAtom,
+  updatePostProcessSettingAtom,
+  updateSettingAtom,
 } from "../stores/settings-atoms";
-import { Settings, AudioDevice } from "../lib/types";
 
 interface UseSettingsReturn {
   // State
@@ -38,14 +38,14 @@ interface UseSettingsReturn {
   // Actions
   updateSetting: <K extends keyof Settings>(
     key: K,
-    value: Settings[K],
+    value: Settings[K]
   ) => Promise<void>;
   resetSetting: (key: keyof Settings) => Promise<void>;
   refreshSettings: () => Promise<void>;
   refreshAudioDevices: () => Promise<void>;
   refreshOutputDevices: () => Promise<void>;
   playTestSound: (soundType: "start" | "stop") => Promise<void>;
-  
+
   // Binding-specific actions
   updateBinding: (id: string, binding: string) => Promise<void>;
   resetBinding: (id: string) => Promise<void>;
@@ -55,8 +55,14 @@ interface UseSettingsReturn {
 
   // Post-processing helpers
   setPostProcessProvider: (providerId: string) => Promise<void>;
-  updatePostProcessBaseUrl: (providerId: string, baseUrl: string) => Promise<void>;
-  updatePostProcessApiKey: (providerId: string, apiKey: string) => Promise<void>;
+  updatePostProcessBaseUrl: (
+    providerId: string,
+    baseUrl: string
+  ) => Promise<void>;
+  updatePostProcessApiKey: (
+    providerId: string,
+    apiKey: string
+  ) => Promise<void>;
   updatePostProcessModel: (providerId: string, model: string) => Promise<void>;
   fetchPostProcessModels: (providerId: string) => Promise<string[]>;
 }
@@ -96,10 +102,10 @@ export const useSettings = (): UseSettingsReturn => {
   return {
     settings,
     isLoading,
-    isUpdating: (key: string) => isUpdatingMap[key] || false,
+    isUpdating: (key: string) => isUpdatingMap[key],
     audioDevices,
     outputDevices,
-    audioFeedbackEnabled: settings?.audio_feedback || false,
+    audioFeedbackEnabled: settings?.audio_feedback,
     postProcessModelOptions,
     customSounds,
     updateSetting: (key, value) => updateSetting(key, value),
@@ -112,12 +118,12 @@ export const useSettings = (): UseSettingsReturn => {
     resetBinding: (id) => resetBinding(id),
     getSetting: (key) => settings?.[key],
     setPostProcessProvider: (providerId) => setPostProcessProvider(providerId),
-    updatePostProcessBaseUrl: (providerId, baseUrl) => 
-      updatePostProcessSetting('base_url', providerId, baseUrl),
-    updatePostProcessApiKey: (providerId, apiKey) => 
+    updatePostProcessBaseUrl: (providerId, baseUrl) =>
+      updatePostProcessSetting("base_url", providerId, baseUrl),
+    updatePostProcessApiKey: (providerId, apiKey) =>
       updatePostProcessApiKey(providerId, apiKey),
-    updatePostProcessModel: (providerId, model) => 
-      updatePostProcessSetting('model', providerId, model),
+    updatePostProcessModel: (providerId, model) =>
+      updatePostProcessSetting("model", providerId, model),
     fetchPostProcessModels: (providerId) => fetchPostProcessModels(providerId),
   };
 };

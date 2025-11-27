@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { Copy, Check } from "lucide-react";
-import { SettingContainer } from "./SettingContainer";
+import { Check, Copy } from "lucide-react";
+import type React from "react";
+import { useState } from "react";
 import { Button } from "./Button";
+import { SettingContainer } from "./SettingContainer";
 
 interface TextDisplayProps {
   label: string;
@@ -29,7 +30,7 @@ export const TextDisplay: React.FC<TextDisplayProps> = ({
   const [showCopied, setShowCopied] = useState(false);
 
   const handleCopy = async () => {
-    if (!value || !copyable) return;
+    if (!(value && copyable)) return;
 
     try {
       await navigator.clipboard.writeText(value);
@@ -48,16 +49,16 @@ export const TextDisplay: React.FC<TextDisplayProps> = ({
 
   return (
     <SettingContainer
-      title={label}
       description={description}
       descriptionMode={descriptionMode}
       grouped={grouped}
       layout="stacked"
+      title={label}
     >
       <div className="flex items-center gap-2">
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div
-            className={`px-2 min-h-8 py-2 flex items-center bg-muted/10 border border-border/80 rounded-lg text-xs ${textClasses} ${!value ? "opacity-60" : ""}`}
+            className={`flex min-h-8 items-center rounded-lg border border-border/80 bg-muted/10 px-2 py-2 text-xs ${textClasses} ${value ? "" : "opacity-60"}`}
           >
             {displayValue}
           </div>
@@ -65,9 +66,9 @@ export const TextDisplay: React.FC<TextDisplayProps> = ({
         {copyable && value && (
           <Button
             onClick={handleCopy}
-            variant="ghost"
             size="icon-xs"
             title="Copy to clipboard"
+            variant="ghost"
           >
             {showCopied ? (
               <Check className="h-4 w-4" />

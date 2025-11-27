@@ -1,11 +1,11 @@
-import React, { useState, useId } from "react";
 import { listen } from "@tauri-apps/api/event";
-import { SettingContainer } from "../ui/SettingContainer";
-import { Button } from "../ui/Button";
-import { RotateCcw, Globe, ChevronsUpDown } from "lucide-react";
-import { useSettings } from "../../hooks/use-settings";
+import * as Flags from "country-flag-icons/react/3x2";
+import { ChevronsUpDown, Globe, RotateCcw } from "lucide-react";
+import React, { useId, useState } from "react";
 import { useModels } from "../../hooks/use-models";
+import { useSettings } from "../../hooks/use-settings";
 import { LANGUAGES } from "../../lib/constants/languages";
+import { Button } from "../ui/Button";
 import {
   Command,
   CommandEmpty,
@@ -14,12 +14,8 @@ import {
   CommandItem,
   CommandList,
 } from "../ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../ui/popover";
-import * as Flags from "country-flag-icons/react/3x2";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { SettingContainer } from "../ui/SettingContainer";
 
 interface LanguageSelectorProps {
   descriptionMode?: "inline" | "tooltip";
@@ -35,10 +31,10 @@ const getFlagComponent = (countryCode?: string) => {
   return FlagComponent || null;
 };
 
-export const LanguageSelector  = ({
+export const LanguageSelector = ({
   descriptionMode = "tooltip",
   grouped = false,
-}:LanguageSelectorProps) => {
+}: LanguageSelectorProps) => {
   const id = useId();
   const { getSetting, updateSetting, resetSetting, isUpdating } = useSettings();
   const { currentModel, loadCurrentModel } = useModels();
@@ -76,106 +72,107 @@ export const LanguageSelector  = ({
 
   return (
     <SettingContainer
-      title="Language"
       description={
         isUnsupported
           ? "Parakeet model automatically detects the language. No manual selection is needed."
           : "Select the language for speech recognition. Auto will automatically determine the language, while selecting a specific language can improve accuracy for that language."
       }
       descriptionMode={descriptionMode}
-      grouped={grouped}
       disabled={isUnsupported}
-      icon={<Globe className="w-4 h-4" />}
+      grouped={grouped}
+      icon={<Globe className="h-4 w-4" />}
+      title="Language"
     >
-      {isUnsupported ?(
-        <p className="text-xs text-muted-foreground">
+      {isUnsupported ? (
+        <p className="text-muted-foreground text-xs">
           The selected model automatically detects the language.
         </p>
-      ) :(
-
-      <div className="flex items-center space-x-1">
-        <Popover open={isOpen} onOpenChange={setIsOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              id={id}
-              variant="secondary"
-              role="combobox"
-              aria-expanded={isOpen}
-              className="w-full min-w-[200px] justify-between"
-              disabled={isUpdating("selected_language") || isUnsupported}
+      ) : (
+        <div className="flex items-center space-x-1">
+          <Popover onOpenChange={setIsOpen} open={isOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                aria-expanded={isOpen}
+                className="w-full min-w-[200px] justify-between"
+                disabled={isUpdating("selected_language") || isUnsupported}
+                id={id}
+                role="combobox"
+                variant="secondary"
+              >
+                {selectedLanguage ? (
+                  <span className="flex min-w-0 items-center gap-2">
+                    {(() => {
+                      const FlagComponent = getFlagComponent(
+                        selectedLanguageData?.countryCode
+                      );
+                      return FlagComponent ? (
+                        <FlagComponent className="h-3 w-4 shrink-0" />
+                      ) : (
+                        <Globe className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      );
+                    })()}
+                    <span className="truncate">{selectedLanguageName}</span>
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">Select language</span>
+                )}
+                <ChevronsUpDown
+                  aria-hidden="true"
+                  className="shrink-0 text-muted-foreground/80"
+                  size={16}
+                />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="start"
+              className="w-full min-w-(--radix-popper-anchor-width) border-input p-0"
             >
-              {selectedLanguage ? (
-                <span className="flex min-w-0 items-center gap-2">
-                  {(() => {
-                    const FlagComponent = getFlagComponent(
-                      selectedLanguageData?.countryCode
-                    );
-                    return FlagComponent ? (
-                      <FlagComponent className="w-4 h-3 shrink-0" />
-                    ) : (
-                      <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
-                    );
-                  })()}
-                  <span className="truncate">{selectedLanguageName}</span>
-                </span>
-              ) : (
-                <span className="text-muted-foreground">Select language</span>
-              )}
-              <ChevronsUpDown
-                size={16}
-                className="text-muted-foreground/80 shrink-0"
-                aria-hidden="true"
-              />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            className="border-input w-full min-w-(--radix-popper-anchor-width) p-0"
-            align="start"
+              <Command>
+                <CommandInput placeholder="Search languages..." />
+                <CommandList>
+                  <CommandEmpty>No language found.</CommandEmpty>
+                  <CommandGroup>
+                    {LANGUAGES.map((language) => {
+                      const FlagComponent = getFlagComponent(
+                        language.countryCode
+                      );
+                      return (
+                        <CommandItem
+                          className="flex items-center justify-between"
+                          key={language.value}
+                          onSelect={handleLanguageSelect}
+                          value={language.value}
+                        >
+                          <div className="flex items-center gap-2">
+                            {FlagComponent ? (
+                              <FlagComponent className="h-3 w-4 shrink-0 text-muted-foreground" />
+                            ) : (
+                              <Globe className="h-4 w-4 shrink-0 text-muted-foreground" />
+                            )}
+                            {language.label}
+                          </div>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <Button
+            disabled={isUpdating("selected_language") || isUnsupported}
+            onClick={handleReset}
+            size="icon"
+            variant="ghost"
           >
-            <Command>
-              <CommandInput placeholder="Search languages..." />
-              <CommandList>
-                <CommandEmpty>No language found.</CommandEmpty>
-                <CommandGroup>
-                  {LANGUAGES.map((language) => {
-                    const FlagComponent = getFlagComponent(language.countryCode);
-                    return (
-                      <CommandItem
-                        key={language.value}
-                        value={language.value}
-                        onSelect={handleLanguageSelect}
-                        className="flex items-center justify-between"
-                      >
-                        <div className="flex items-center gap-2">
-                          {FlagComponent ? (
-                            <FlagComponent className="w-4 h-3 text-muted-foreground shrink-0" />
-                          ) : (
-                            <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
-                          )}
-                          {language.label}
-                        </div>
-                      </CommandItem>
-                    );
-                  })}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleReset}
-          disabled={isUpdating("selected_language") || isUnsupported}
-        >
-          <RotateCcw className="w-5 h-5" />
-        </Button>
-      </div>
+            <RotateCcw className="h-5 w-5" />
+          </Button>
+        </div>
       )}
 
       {isUpdating("selected_language") && (
-        <div className="absolute inset-0 bg-muted/10 rounded flex items-center justify-center">
-          <div className="w-4 h-4 border-2 border-brand border-t-transparent rounded-full animate-spin"></div>
+        <div className="absolute inset-0 flex items-center justify-center rounded bg-muted/10">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
         </div>
       )}
     </SettingContainer>

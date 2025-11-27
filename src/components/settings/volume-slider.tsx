@@ -1,7 +1,7 @@
-import React from "react";
 import { Volume2 } from "lucide-react";
-import { Slider } from "../ui/Slider";
+import type React from "react";
 import { useSettings } from "../../hooks/use-settings";
+import { Slider } from "../ui/Slider";
 
 export const VolumeSlider: React.FC<{ disabled?: boolean }> = ({
   disabled = false,
@@ -11,20 +11,20 @@ export const VolumeSlider: React.FC<{ disabled?: boolean }> = ({
 
   return (
     <Slider
-      value={audioFeedbackVolume}
+      description="Adjust the volume of audio feedback sounds"
+      descriptionMode="tooltip"
+      disabled={disabled}
+      formatValue={(value) => `${Math.round(value * 100)}%`}
+      grouped
+      icon={<Volume2 className="h-4 w-4" />}
+      label="Volume"
+      max={1}
+      min={0}
       onChange={(value: number) =>
         updateSetting("audio_feedback_volume", value)
       }
-      min={0}
-      max={1}
       step={0.1}
-      label="Volume"
-      description="Adjust the volume of audio feedback sounds"
-      descriptionMode="tooltip"
-      grouped
-      formatValue={(value) => `${Math.round(value * 100)}%`}
-      disabled={disabled}
-      icon={<Volume2 className="w-4 h-4" />}
+      value={audioFeedbackVolume}
     />
   );
 };

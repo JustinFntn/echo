@@ -1,77 +1,77 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useMemo, useRef, useEffect } from "react";
-import { DoubleSide, Mesh, Vector3 } from "three";
-import { useGithubData } from "@/hooks/use-github-data";
 import { motion, useInView } from "motion/react";
+import { useEffect, useMemo, useRef } from "react";
+import { DoubleSide, type Mesh, Vector3 } from "three";
+import { useGithubData } from "@/hooks/use-github-data";
 
 interface ShaderPlaneProps {
-	vertexShader: string;
-	fragmentShader: string;
-	uniforms: { [key: string]: { value: unknown } };
-	isActive: boolean;
+  vertexShader: string;
+  fragmentShader: string;
+  uniforms: { [key: string]: { value: unknown } };
+  isActive: boolean;
 }
 
 function ShaderPlane({
-	vertexShader,
-	fragmentShader,
-	uniforms,
-	isActive,
+  vertexShader,
+  fragmentShader,
+  uniforms,
+  isActive,
 }: ShaderPlaneProps) {
-	const meshRef = useRef<Mesh>(null);
-	const { size, invalidate: requestFrame } = useThree();
+  const meshRef = useRef<Mesh>(null);
+  const { size, invalidate: requestFrame } = useThree();
 
-	useFrame((state) => {
-		if (!isActive || !meshRef.current) return;
-		
-		const material = meshRef.current.material;
-		material.uniforms.u_time.value = state.clock.elapsedTime * 0.5;
-		material.uniforms.u_resolution.value.set(size.width, size.height, 1.0);
-		
-		// Request next frame for continuous animation
-		requestFrame();
-	});
+  useFrame((state) => {
+    if (!(isActive && meshRef.current)) return;
 
-	// Trigger initial render and continuous updates when active
-	useEffect(() => {
-		if (isActive) {
-			requestFrame();
-		}
-	}, [isActive, requestFrame]);
+    const material = meshRef.current.material;
+    material.uniforms.u_time.value = state.clock.elapsedTime * 0.5;
+    material.uniforms.u_resolution.value.set(size.width, size.height, 1.0);
 
-	return (
-		<mesh ref={meshRef}>
-			<planeGeometry args={[2, 2]} />
-			<shaderMaterial
-				vertexShader={vertexShader}
-				fragmentShader={fragmentShader}
-				uniforms={uniforms}
-				side={DoubleSide}
-				depthTest={false}
-				depthWrite={false}
-			/>
-		</mesh>
-	);
+    // Request next frame for continuous animation
+    requestFrame();
+  });
+
+  // Trigger initial render and continuous updates when active
+  useEffect(() => {
+    if (isActive) {
+      requestFrame();
+    }
+  }, [isActive, requestFrame]);
+
+  return (
+    <mesh ref={meshRef}>
+      <planeGeometry args={[2, 2]} />
+      <shaderMaterial
+        depthTest={false}
+        depthWrite={false}
+        fragmentShader={fragmentShader}
+        side={DoubleSide}
+        uniforms={uniforms}
+        vertexShader={vertexShader}
+      />
+    </mesh>
+  );
 }
 
 interface ShaderBackgroundProps {
-	vertexShader?: string;
-	fragmentShader?: string;
-	uniforms?: { [key: string]: { value: unknown } };
-	className?: string;
-	isActive?: boolean;
+  vertexShader?: string;
+  fragmentShader?: string;
+  uniforms?: { [key: string]: { value: unknown } };
+  className?: string;
+  isActive?: boolean;
 }
 
 function ShaderBackground({
-	vertexShader = `
+  vertexShader = `
     varying vec2 vUv;
     void main() {
       vUv = uv;
     gl_Position = vec4(position, 1.0);
     }
   `,
-	fragmentShader = `
+  fragmentShader = `
     precision highp float;
 
     varying vec2 vUv;
@@ -199,124 +199,119 @@ function ShaderBackground({
       gl_FragColor = fragColor;
     }
   `,
-	uniforms = {},
-	className = "w-full h-full",
-	isActive = true,
+  uniforms = {},
+  className = "w-full h-full",
+  isActive = true,
 }: ShaderBackgroundProps) {
-	const shaderUniforms = useMemo(
-		() => ({
-			u_time: { value: 0 },
-			u_resolution: { value: new Vector3(1, 1, 1) },
-			...uniforms,
-		}),
-		[uniforms],
-	);
+  const shaderUniforms = useMemo(
+    () => ({
+      u_time: { value: 0 },
+      u_resolution: { value: new Vector3(1, 1, 1) },
+      ...uniforms,
+    }),
+    [uniforms]
+  );
 
-	return (
-		<div className={className}>
-			<Canvas 
-                className={className} 
-                dpr={1} 
-                frameloop="demand"
-                gl={{ 
-                    powerPreference: "high-performance",
-                    antialias: false,
-                    stencil: false,
-                    depth: false,
-                }}
-            >
-				<ShaderPlane
-					vertexShader={vertexShader}
-					fragmentShader={fragmentShader}
-					uniforms={shaderUniforms}
-					isActive={isActive}
-				/>
-			</Canvas>
-		</div>
-	);
+  return (
+    <div className={className}>
+      <Canvas
+        className={className}
+        dpr={1}
+        frameloop="demand"
+        gl={{
+          powerPreference: "high-performance",
+          antialias: false,
+          stencil: false,
+          depth: false,
+        }}
+      >
+        <ShaderPlane
+          fragmentShader={fragmentShader}
+          isActive={isActive}
+          uniforms={shaderUniforms}
+          vertexShader={vertexShader}
+        />
+      </Canvas>
+    </div>
+  );
 }
 
 export default function Hero() {
-    const { version } = useGithubData();
-    const containerRef = useRef<HTMLDivElement>(null);
-    const isInView = useInView(containerRef, { margin: "100px" });
+  const { version } = useGithubData();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(containerRef, { margin: "100px" });
 
-	return (
-		<div
-            ref={containerRef}
-			className="relative h-svh w-full overflow-hidden bg-black text-white mask-[linear-gradient(to_bottom,white_80%,transparent)]"
-		>
-			<motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: isInView ? 1 : 0 }}
-                transition={{ duration: 1.5, ease: "easeInOut" }}
-                className="absolute inset-0"
+  return (
+    <div
+      className="mask-[linear-gradient(to_bottom,white_80%,transparent)] relative h-svh w-full overflow-hidden bg-black text-white"
+      ref={containerRef}
+    >
+      <motion.div
+        animate={{ opacity: isInView ? 1 : 0 }}
+        className="absolute inset-0"
+        initial={{ opacity: 0 }}
+        transition={{ duration: 1.5, ease: "easeInOut" }}
+      >
+        <ShaderBackground className="h-full w-full" isActive={isInView} />
+      </motion.div>
+
+      <div className="pointer-events-none absolute inset-0 [background:radial-gradient(120%_80%_at_50%_50%,transparent_40%,black_100%)]" />
+
+      <div className="relative z-10 flex h-svh w-full items-center justify-center px-6">
+        <div className="text-center">
+          <motion.h1
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            className="mx-auto max-w-2xl font-extralight text-[clamp(2.25rem,6vw,4rem)] leading-[0.95] tracking-tight lg:max-w-4xl"
+            initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
+            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          >
+            Echo. Private. Offline. Fast.
+          </motion.h1>
+          {version && (
+            <motion.div
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-4 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 font-medium text-white text-xs backdrop-blur-md"
+              initial={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
             >
-				<ShaderBackground 
-                    className="h-full w-full" 
-                    isActive={isInView}
-                />
-			</motion.div>
+              <span>Latest Release: {version}</span>
+            </motion.div>
+          )}
+          <motion.p
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            className="mx-auto mt-4 max-w-2xl font-light text-sm/6 text-white/70 tracking-tight md:text-balance md:text-base/7"
+            initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
+            transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
+          >
+            The ultimate speech-to-text tool for macOS, Windows, and Linux.
+            Powered by Whisper, running entirely on your device.
+          </motion.p>
 
-			<div className="pointer-events-none absolute inset-0 [background:radial-gradient(120%_80%_at_50%_50%,transparent_40%,black_100%)]" />
+          <div className="mt-8 flex flex-row items-center justify-center gap-4">
+            <motion.a
+              animate={{ opacity: 1, y: 0 }}
+              className="group relative cursor-pointer overflow-hidden rounded-lg border border-white/30 bg-linear-to-r from-white/20 to-white/10 px-4 py-2 font-medium text-sm text-white tracking-wide backdrop-blur-sm transition-[border-color,background-color,box-shadow] duration-500 hover:border-white/50 hover:bg-white/20 hover:shadow-lg hover:shadow-white/10"
+              href="#download"
+              initial={{ opacity: 0, y: 16 }}
+              transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
+            >
+              Download Now
+            </motion.a>
 
-			<div className="relative z-10 flex h-svh w-full items-center justify-center px-6">
-				<div className="text-center">
-					<motion.h1
-                        initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-						className="mx-auto max-w-2xl lg:max-w-4xl text-[clamp(2.25rem,6vw,4rem)] font-extralight leading-[0.95] tracking-tight"
-					>
-						Echo. Private. Offline. Fast.
-					</motion.h1>
-                    {version && (
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5, delay: 0.5 }}
-                            className="mt-4 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white backdrop-blur-md"
-                        >
-                            <span>Latest Release: {version}</span>
-                        </motion.div>
-                    )}
-					<motion.p
-                        initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
-						className="mx-auto mt-4 max-w-2xl md:text-balance text-sm/6 md:text-base/7 font-light tracking-tight text-white/70"
-					>
-						The ultimate speech-to-text tool for macOS, Windows, and Linux.
-                        Powered by Whisper, running entirely on your device.
-					</motion.p>
-
-					<div
-						className="mt-8 flex flex-row items-center justify-center gap-4"
-					>
-						<motion.a
-                            href="#download"
-                            initial={{ opacity: 0, y: 16 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
-							className="group relative overflow-hidden border border-white/30 bg-linear-to-r from-white/20 to-white/10 px-4 py-2 text-sm rounded-lg font-medium tracking-wide text-white backdrop-blur-sm transition-[border-color,background-color,box-shadow] duration-500 hover:border-white/50 hover:bg-white/20 hover:shadow-lg hover:shadow-white/10 cursor-pointer"
-						>
-							Download Now
-						</motion.a>
-
-						<motion.a
-                            href="https://github.com/damien-schneider/Echo"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            initial={{ opacity: 0, y: 16 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.88, ease: "easeOut" }}
-							className="group relative px-4 py-2 text-sm font-medium tracking-wide text-white/90 transition-[filter,color] duration-500 hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.6)] hover:text-white cursor-pointer"
-						>
-							View on GitHub
-						</motion.a>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+            <motion.a
+              animate={{ opacity: 1, y: 0 }}
+              className="group relative cursor-pointer px-4 py-2 font-medium text-sm text-white/90 tracking-wide transition-[filter,color] duration-500 hover:text-white hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]"
+              href="https://github.com/damien-schneider/Echo"
+              initial={{ opacity: 0, y: 16 }}
+              rel="noopener noreferrer"
+              target="_blank"
+              transition={{ duration: 0.6, delay: 0.88, ease: "easeOut" }}
+            >
+              View on GitHub
+            </motion.a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

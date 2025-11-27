@@ -1,7 +1,6 @@
-import React, { useState } from "react";
 import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from "lucide-react";
-import type { ModelOption } from "./types";
-import { cn } from "@/lib/utils";
+import type React from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import {
   Command,
@@ -16,6 +15,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import type { ModelOption } from "./types";
 
 type ModelSelectProps = {
   value: string;
@@ -78,14 +79,14 @@ export const ModelSelect: React.FC<ModelSelectProps> = ({
     );
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild>
         <Button
-          role="combobox"
           aria-expanded={open}
+          className={cn("justify-between font-normal text-sm", className)}
           disabled={disabled || isLoading}
           onBlur={onBlur}
-          className={cn("justify-between text-sm font-normal", className)}
+          role="combobox"
         >
           <span className="truncate">
             {selectedOption?.label || value || placeholder}
@@ -93,22 +94,24 @@ export const ModelSelect: React.FC<ModelSelectProps> = ({
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 w-96">
+      <PopoverContent className="w-96 p-0">
         <Command shouldFilter={false}>
           <CommandInput
+            onValueChange={setSearch}
             placeholder={
-              allowCreate ? "Search or enter custom model..." : "Search model..."
+              allowCreate
+                ? "Search or enter custom model..."
+                : "Search model..."
             }
             value={search}
-            onValueChange={setSearch}
           />
           <CommandList>
             <CommandEmpty>
               {allowCreate && search.trim() ? (
                 <button
-                  type="button"
+                  className="flex w-full cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-brand text-sm hover:bg-accent"
                   onClick={handleCreate}
-                  className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-brand hover:bg-accent rounded-sm cursor-pointer"
+                  type="button"
                 >
                   <PlusIcon className="h-4 w-4" />
                   Create "{search.trim()}"
@@ -120,17 +123,17 @@ export const ModelSelect: React.FC<ModelSelectProps> = ({
             <CommandGroup heading="Available Models">
               {filteredOptions.map((option) => (
                 <CommandItem
-                  key={option.value}
-                  value={option.value}
-                  onSelect={() => handleSelect(option.value)}
                   className={cn(
                     "cursor-pointer",
                     value === option.value && "bg-foreground/10 text-foreground"
                   )}
+                  key={option.value}
+                  onSelect={() => handleSelect(option.value)}
+                  value={option.value}
                 >
-                  <div className="flex items-center justify-between w-full">
+                  <div className="flex w-full items-center justify-between">
                     <div className="flex-1">
-                      <div className="text-sm font-medium tracking-tight">
+                      <div className="font-medium text-sm tracking-tight">
                         {option.label}
                       </div>
                     </div>
@@ -144,9 +147,9 @@ export const ModelSelect: React.FC<ModelSelectProps> = ({
               ))}
               {showCreateOption && (
                 <CommandItem
-                  value={`__create__${search.trim()}`}
-                  onSelect={handleCreate}
                   className="cursor-pointer text-brand"
+                  onSelect={handleCreate}
+                  value={`__create__${search.trim()}`}
                 >
                   <div className="flex items-center gap-2">
                     <PlusIcon className="h-4 w-4" />

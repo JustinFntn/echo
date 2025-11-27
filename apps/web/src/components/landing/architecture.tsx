@@ -23,30 +23,30 @@ const Architecture = ({
   return (
     <svg
       className={cn("text-muted", className)}
-      width={width}
       height={height}
       viewBox="0 0 200 100"
+      width={width}
     >
       {/* Paths */}
       <g
-        stroke="currentColor"
         fill="none"
-        strokeWidth="0.3"
-        strokeDasharray="100 100"
-        pathLength="100"
         markerStart="url(#cpu-circle-marker)"
+        pathLength="100"
+        stroke="currentColor"
+        strokeDasharray="100 100"
+        strokeWidth="0.3"
       >
         {/* 1st */}
         <path
-          strokeDasharray="100 100"
-          pathLength="100"
           d="M 10 20 h 79.5 q 5 0 5 5 v 30"
+          pathLength="100"
+          strokeDasharray="100 100"
         />
         {/* 2nd */}
         <path
-          strokeDasharray="100 100"
-          pathLength="100"
           d="M 180 10 h -69.7 q -5 0 -5 5 v 30"
+          pathLength="100"
+          strokeDasharray="100 100"
         />
         {/* 3rd */}
         <path d="M 130 20 v 21.8 q 0 5 -5 5 h -10" />
@@ -54,9 +54,9 @@ const Architecture = ({
         <path d="M 170 80 v -21.8 q 0 -5 -5 -5 h -50" />
         {/* 5th */}
         <path
-          strokeDasharray="100 100"
-          pathLength="100"
           d="M 135 65 h 15 q 5 0 5 5 v 10 q 0 5 -5 5 h -39.8 q -5 0 -5 -5 v -20"
+          pathLength="100"
+          strokeDasharray="100 100"
         />
         {/* 6th */}
         <path d="M 94.8 95 v -36" />
@@ -68,13 +68,13 @@ const Architecture = ({
         {animateLines && (
           <animate
             attributeName="stroke-dashoffset"
-            from="100"
-            to="0"
+            calcMode="spline"
             dur="1s"
             fill="freeze"
-            calcMode="spline"
+            from="100"
             keySplines="0.25,0.1,0.5,1"
             keyTimes="0; 1"
+            to="0"
           />
         )}
       </g>
@@ -85,8 +85,8 @@ const Architecture = ({
           className="cpu-architecture cpu-line-1"
           cx="0"
           cy="0"
-          r="8"
           fill="url(#cpu-blue-grad)"
+          r="8"
         />
       </g>
       {/* 2. Yellow Light */}
@@ -95,8 +95,8 @@ const Architecture = ({
           className="cpu-architecture cpu-line-2"
           cx="0"
           cy="0"
-          r="8"
           fill="url(#cpu-yellow-grad)"
+          r="8"
         />
       </g>
       {/* 3. Pinkish Light */}
@@ -105,8 +105,8 @@ const Architecture = ({
           className="cpu-architecture cpu-line-3"
           cx="0"
           cy="0"
-          r="8"
           fill="url(#cpu-pinkish-grad)"
+          r="8"
         />
       </g>
       {/* 4. White Light */}
@@ -115,8 +115,8 @@ const Architecture = ({
           className="cpu-architecture cpu-line-4"
           cx="0"
           cy="0"
-          r="8"
           fill="url(#cpu-white-grad)"
+          r="8"
         />
       </g>
       {/* 5. Green Light */}
@@ -125,8 +125,8 @@ const Architecture = ({
           className="cpu-architecture cpu-line-5"
           cx="0"
           cy="0"
-          r="8"
           fill="url(#cpu-green-grad)"
+          r="8"
         />
       </g>
       {/* 6. Orange Light */}
@@ -135,8 +135,8 @@ const Architecture = ({
           className="cpu-architecture cpu-line-6"
           cx="0"
           cy="0"
-          r="8"
           fill="url(#cpu-orange-grad)"
+          r="8"
         />
       </g>
       {/* 7. Cyan Light */}
@@ -145,8 +145,8 @@ const Architecture = ({
           className="cpu-architecture cpu-line-7"
           cx="0"
           cy="0"
-          r="8"
           fill="url(#cpu-cyan-grad)"
+          r="8"
         />
       </g>
       {/* 8. Rose Light */}
@@ -155,8 +155,8 @@ const Architecture = ({
           className="cpu-architecture cpu-line-8"
           cx="0"
           cy="0"
-          r="8"
           fill="url(#cpu-rose-grad)"
+          r="8"
         />
       </g>
       {/* CPU Box */}
@@ -287,21 +287,21 @@ const Architecture = ({
           </>
         )}
         <rect
-          x="85"
-          y="40"
-          width="30"
-          height="20"
-          rx="2"
           fill="#181818"
           filter="url(#cpu-light-shadow)"
+          height="20"
+          rx="2"
+          width="30"
+          x="85"
+          y="40"
         />
         <rect
-          x="92.5"
-          y="42.5"
-          width="15"
+          fill={animateText ? "url(#cpu-text-gradient)" : "white"}
           height="15"
           rx="1"
-          fill={animateText ? "url(#cpu-text-gradient)" : "white"}
+          width="15"
+          x="92.5"
+          y="42.5"
         />
       </g>
       {/* Masks */}
@@ -309,126 +309,126 @@ const Architecture = ({
         <mask id="cpu-mask-1">
           <path
             d="M 10 20 h 79.5 q 5 0 5 5 v 24"
-            strokeWidth="0.5"
             stroke="white"
+            strokeWidth="0.5"
           />
         </mask>
         <mask id="cpu-mask-2">
           <path
             d="M 180 10 h -69.7 q -5 0 -5 5 v 24"
-            strokeWidth="0.5"
             stroke="white"
+            strokeWidth="0.5"
           />
         </mask>
         <mask id="cpu-mask-3">
           <path
             d="M 130 20 v 21.8 q 0 5 -5 5 h -10"
-            strokeWidth="0.5"
             stroke="white"
+            strokeWidth="0.5"
           />
         </mask>
         <mask id="cpu-mask-4">
           <path
             d="M 170 80 v -21.8 q 0 -5 -5 -5 h -50"
-            strokeWidth="0.5"
             stroke="white"
+            strokeWidth="0.5"
           />
         </mask>
         <mask id="cpu-mask-5">
           <path
             d="M 135 65 h 15 q 5 0 5 5 v 10 q 0 5 -5 5 h -39.8 q -5 0 -5 -5 v -20"
-            strokeWidth="0.5"
             stroke="white"
+            strokeWidth="0.5"
           />
         </mask>
         <mask id="cpu-mask-6">
-          <path d="M 94.8 95 v -36" strokeWidth="0.5" stroke="white" />
+          <path d="M 94.8 95 v -36" stroke="white" strokeWidth="0.5" />
         </mask>
         <mask id="cpu-mask-7">
           <path
             d="M 88 88 v -15 q 0 -5 -5 -5 h -10 q -5 0 -5 -5 v -5 q 0 -5 5 -5 h 14"
-            strokeWidth="0.5"
             stroke="white"
+            strokeWidth="0.5"
           />
         </mask>
         <mask id="cpu-mask-8">
           <path
             d="M 30 30 h 25 q 5 0 5 5 v 6.5 q 0 5 5 5 h 20"
-            strokeWidth="0.5"
             stroke="white"
+            strokeWidth="0.5"
           />
         </mask>
-        <radialGradient id="cpu-blue-grad" fx="1">
+        <radialGradient fx="1" id="cpu-blue-grad">
           <stop offset="0%" stopColor="#00E8ED" />
           <stop offset="50%" stopColor="#08F" />
           <stop offset="100%" stopColor="transparent" />
         </radialGradient>
-        <radialGradient id="cpu-yellow-grad" fx="1">
+        <radialGradient fx="1" id="cpu-yellow-grad">
           <stop offset="0%" stopColor="#FFD800" />
           <stop offset="50%" stopColor="#FFD800" />
           <stop offset="100%" stopColor="transparent" />
         </radialGradient>
-        <radialGradient id="cpu-pinkish-grad" fx="1">
+        <radialGradient fx="1" id="cpu-pinkish-grad">
           <stop offset="0%" stopColor="#830CD1" />
           <stop offset="50%" stopColor="#FF008B" />
           <stop offset="100%" stopColor="transparent" />
         </radialGradient>
-        <radialGradient id="cpu-white-grad" fx="1">
+        <radialGradient fx="1" id="cpu-white-grad">
           <stop offset="0%" stopColor="white" />
           <stop offset="100%" stopColor="transparent" />
         </radialGradient>
-        <radialGradient id="cpu-green-grad" fx="1">
+        <radialGradient fx="1" id="cpu-green-grad">
           <stop offset="0%" stopColor="#22c55e" />
           <stop offset="100%" stopColor="transparent" />
         </radialGradient>
-        <radialGradient id="cpu-orange-grad" fx="1">
+        <radialGradient fx="1" id="cpu-orange-grad">
           <stop offset="0%" stopColor="#f97316" />
           <stop offset="100%" stopColor="transparent" />
         </radialGradient>
-        <radialGradient id="cpu-cyan-grad" fx="1">
+        <radialGradient fx="1" id="cpu-cyan-grad">
           <stop offset="0%" stopColor="#06b6d4" />
           <stop offset="100%" stopColor="transparent" />
         </radialGradient>
-        <radialGradient id="cpu-rose-grad" fx="1">
+        <radialGradient fx="1" id="cpu-rose-grad">
           <stop offset="0%" stopColor="#f43f5e" />
           <stop offset="100%" stopColor="transparent" />
         </radialGradient>
         <filter
+          height="200%"
           id="cpu-light-shadow"
+          width="200%"
           x="-50%"
           y="-50%"
-          width="200%"
-          height="200%"
         >
           <feDropShadow
             dx="1.5"
             dy="1.5"
-            stdDeviation="1"
             floodColor="black"
             floodOpacity="0.1"
+            stdDeviation="1"
           />
         </filter>
         <marker
           id="cpu-circle-marker"
-          viewBox="0 0 10 10"
+          markerHeight={lineMarkerSize}
+          markerWidth={lineMarkerSize}
           refX="5"
           refY="5"
-          markerWidth={lineMarkerSize}
-          markerHeight={lineMarkerSize}
+          viewBox="0 0 10 10"
         >
-          <circle cx="5" cy="5" r="2" fill="currentColor" opacity="0.5" />
+          <circle cx="5" cy="5" fill="currentColor" opacity="0.5" r="2" />
         </marker>
         <linearGradient
           id="cpu-connection-gradient"
           x1="0"
-          y1="0"
           x2="0"
+          y1="0"
           y2="1"
         >
           <stop offset="0%" stopColor="#4F4F4F" />
           <stop offset="60%" stopColor="#121214" />
         </linearGradient>
-        <linearGradient id="cpu-text-gradient" x1="0" y1="0" x2="1" y2="0">
+        <linearGradient id="cpu-text-gradient" x1="0" x2="1" y1="0" y2="0">
           <stop offset="0%" stopColor="#830CD1" />
           <stop offset="50%" stopColor="#00E8ED" />
           <stop offset="100%" stopColor="#FFD800" />

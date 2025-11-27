@@ -37,14 +37,14 @@ export const BaseUrlField: React.FC<BaseUrlFieldProps> = ({
 
   return (
     <Input
+      className={`min-w-[360px] flex-1 ${className}`}
+      disabled={disabled}
+      onBlur={() => onBlur(localValue)}
+      onChange={handleChange}
+      placeholder={placeholder}
+      title={disabledMessage}
       type="text"
       value={localValue}
-      onChange={handleChange}
-      onBlur={() => onBlur(localValue)}
-      placeholder={placeholder}
-      disabled={disabled}
-      className={`flex-1 min-w-[360px] ${className}`}
-      title={disabledMessage}
     />
   );
 };

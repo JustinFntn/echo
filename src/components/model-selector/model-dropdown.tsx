@@ -1,5 +1,8 @@
+import { ChevronDown, Trash2Icon } from "lucide-react";
 import React from "react";
-import { ModelInfo } from "../../lib/types";
+import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
+import type { ModelInfo } from "../../lib/types";
 import { formatModelSize } from "../../lib/utils/format";
 import { ProgressBar } from "../shared";
 import {
@@ -11,9 +14,6 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
-import { Button } from "@/components/ui/Button";
-import { ChevronDown, Trash2Icon } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 type ModelStatus =
   | "ready"
@@ -108,29 +108,32 @@ const ModelDropdown: React.FC<ModelDropdownProps> = ({
   };
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu onOpenChange={setOpen} open={open}>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
+        <Button
+          className="flex items-center gap-2 transition-colors hover:text-text/80"
           size="xs"
-          className="flex items-center gap-2 hover:text-text/80 transition-colors"
           title={`Model status: ${displayText}`}
+          variant="ghost"
         >
-          <div className={`w-2 h-2 rounded-full ${getStatusColor(status)}`} />
+          <div className={`h-2 w-2 rounded-full ${getStatusColor(status)}`} />
           <span className="max-w-28 truncate">{displayText}</span>
-          <ChevronDown className="w-3 h-3" />
+          <ChevronDown className="h-3 w-3" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-92 p-0!" align="start" side="top">
-        <ScrollArea className="*:max-h-[200px] p-0! *:p-2" disableMaskingSide={["left", "right"]}>
+      <DropdownMenuContent align="start" className="w-92 p-0!" side="top">
+        <ScrollArea
+          className="p-0! *:max-h-[200px] *:p-2"
+          disableMaskingSide={["left", "right"]}
+        >
           <ScrollBar orientation="vertical" />
           {/* First Run Welcome */}
           {isFirstRun && (
-            <div className="px-3 py-2 bg-background/10 backdrop-blur-lg border-foreground/10 border rounded-xl mb-1">
-              <div className="text-xs font-medium text-foreground mb-1">
+            <div className="mb-1 rounded-xl border border-foreground/10 bg-background/10 px-3 py-2 backdrop-blur-lg">
+              <div className="mb-1 font-medium text-foreground text-xs">
                 Welcome to Echo!
               </div>
-              <div className="text-xs text-foreground/80">
+              <div className="text-foreground/80 text-xs">
                 Download a model below to get started with transcription.
               </div>
             </div>
@@ -139,34 +142,37 @@ const ModelDropdown: React.FC<ModelDropdownProps> = ({
           {/* Available Models */}
           {availableModels.length > 0 && (
             <>
-              <DropdownMenuLabel>
-                Available Models
-              </DropdownMenuLabel>
+              <DropdownMenuLabel>Available Models</DropdownMenuLabel>
               {availableModels.map((model) => (
                 <DropdownMenuItem
+                  className={cn(
+                    "cursor-pointer",
+                    currentModelId === model.id
+                      ? "bg-foreground/10 text-foreground"
+                      : ""
+                  )}
                   key={model.id}
                   onClick={() => handleModelClick(model.id)}
-                  className={cn("cursor-pointer",
-                    currentModelId === model.id ? "bg-foreground/10 text-foreground" : ""
-                  )}
                 >
-                  <div className="flex items-center justify-between w-full">
+                  <div className="flex w-full items-center justify-between">
                     <div className="flex-1">
-                      <div className="text-sm font-medium tracking-tight">{model.name}</div>
-                      <div className="text-[0.65rem] text-foreground/80 italic pr-4">
+                      <div className="font-medium text-sm tracking-tight">
+                        {model.name}
+                      </div>
+                      <div className="pr-4 text-[0.65rem] text-foreground/80 italic">
                         {model.description}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {currentModelId === model.id && (
-                        <div className="text-xs text-foreground">Active</div>
+                        <div className="text-foreground text-xs">Active</div>
                       )}
                       {currentModelId !== model.id && (
                         <Button
                           onClick={(e) => handleDeleteClick(e, model.id)}
-                          variant="ghostDestructive"
                           size="icon-xs"
                           title={`Delete ${model.name}`}
+                          variant="ghostDestructive"
                         >
                           <Trash2Icon className="size-3" />
                         </Button>
@@ -184,7 +190,7 @@ const ModelDropdown: React.FC<ModelDropdownProps> = ({
               {(availableModels.length > 0 || isFirstRun) && (
                 <DropdownMenuSeparator />
               )}
-              <DropdownMenuLabel className="text-xs text-muted-foreground">
+              <DropdownMenuLabel className="text-muted-foreground text-xs">
                 {isFirstRun ? "Choose a Model" : "Download Models"}
               </DropdownMenuLabel>
               {downloadableModels.map((model) => {
@@ -193,29 +199,29 @@ const ModelDropdown: React.FC<ModelDropdownProps> = ({
 
                 return (
                   <DropdownMenuItem
+                    className="cursor-pointer flex-col items-start"
+                    disabled={isDownloading}
                     key={model.id}
                     onClick={() => handleDownloadClick(model.id)}
-                    disabled={isDownloading}
-                    className="cursor-pointer flex-col items-start"
                   >
-                    <div className="flex items-center justify-between w-full">
+                    <div className="flex w-full items-center justify-between">
                       <div className="flex-1">
                         <div className="text-sm">
                           {model.name}
                           {model.id === "small" && isFirstRun && (
-                            <span className="ml-2 text-xs bg-brand/20 text-brand px-1.5 py-0.5 rounded">
+                            <span className="ml-2 rounded bg-brand/20 px-1.5 py-0.5 text-brand text-xs">
                               Recommended
                             </span>
                           )}
                         </div>
-                        <div className="text-xs text-muted-foreground/50 italic pr-4">
+                        <div className="pr-4 text-muted-foreground/50 text-xs italic">
                           {model.description}
                         </div>
-                        <div className="mt-1 text-xs text-muted-foreground/60 tabular-nums">
+                        <div className="mt-1 text-muted-foreground/60 text-xs tabular-nums">
                           Download size · {formatModelSize(model.size_mb)}
                         </div>
                       </div>
-                      <div className="text-xs text-brand tabular-nums font-mono">
+                      <div className="font-mono text-brand text-xs tabular-nums">
                         {isDownloading && progress
                           ? `${Math.max(0, Math.min(100, Math.round(progress.percentage)))}%`
                           : "Download"}
@@ -244,7 +250,7 @@ const ModelDropdown: React.FC<ModelDropdownProps> = ({
 
           {/* No Models Available */}
           {availableModels.length === 0 && downloadableModels.length === 0 && (
-            <div className="px-2 py-1.5 text-sm text-muted-foreground">
+            <div className="px-2 py-1.5 text-muted-foreground text-sm">
               No models available
             </div>
           )}

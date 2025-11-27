@@ -1,16 +1,18 @@
-import React from "react";
+import { Mic, RotateCcw } from "lucide-react";
+import { useSettings } from "../../hooks/use-settings";
+import { Button } from "../ui/Button";
 import { NativeSelect, NativeSelectOption } from "../ui/native-select";
 import { SettingContainer } from "../ui/SettingContainer";
-import { Button } from "../ui/Button";
-import { RotateCcw, Mic } from "lucide-react";
-import { useSettings } from "../../hooks/use-settings";
 
 interface MicrophoneSelectorProps {
   descriptionMode?: "inline" | "tooltip";
   grouped?: boolean;
 }
 
-export const MicrophoneSelector = ({ descriptionMode = "tooltip", grouped = false }: MicrophoneSelectorProps) => {
+export const MicrophoneSelector = ({
+  descriptionMode = "tooltip",
+  grouped = false,
+}: MicrophoneSelectorProps) => {
   const {
     getSetting,
     updateSetting,
@@ -21,8 +23,10 @@ export const MicrophoneSelector = ({ descriptionMode = "tooltip", grouped = fals
     refreshAudioDevices,
   } = useSettings();
 
-  const selectedMicrophone = getSetting("selected_microphone") === "default" ? "Default" : getSetting("selected_microphone") || "Default";
-  
+  const selectedMicrophone =
+    getSetting("selected_microphone") === "default"
+      ? "Default"
+      : getSetting("selected_microphone") || "Default";
 
   const handleMicrophoneSelect = async (deviceName: string) => {
     await updateSetting("selected_microphone", deviceName);
@@ -34,21 +38,27 @@ export const MicrophoneSelector = ({ descriptionMode = "tooltip", grouped = fals
 
   return (
     <SettingContainer
-      title="Microphone"
       description="Select your preferred microphone device"
       descriptionMode={descriptionMode}
       grouped={grouped}
-      icon={<Mic className="w-4 h-4" />}
+      icon={<Mic className="h-4 w-4" />}
+      title="Microphone"
     >
       <div className="flex items-center space-x-1">
         <NativeSelect
-          value={selectedMicrophone}
-          onChange={(e) => handleMicrophoneSelect(e.target.value)}
-          disabled={isUpdating("selected_microphone") || isLoading || audioDevices.length === 0}
           className="flex-1"
+          disabled={
+            isUpdating("selected_microphone") ||
+            isLoading ||
+            audioDevices.length === 0
+          }
+          onChange={(e) => handleMicrophoneSelect(e.target.value)}
+          value={selectedMicrophone}
         >
-          <NativeSelectOption value="" disabled>
-            {isLoading || audioDevices.length === 0 ? "Loading..." : "Select microphone..."}
+          <NativeSelectOption disabled value="">
+            {isLoading || audioDevices.length === 0
+              ? "Loading..."
+              : "Select microphone..."}
           </NativeSelectOption>
           {audioDevices.map((device) => (
             <NativeSelectOption key={device.name} value={device.name}>
@@ -57,12 +67,12 @@ export const MicrophoneSelector = ({ descriptionMode = "tooltip", grouped = fals
           ))}
         </NativeSelect>
         <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleReset}
           disabled={isUpdating("selected_microphone") || isLoading}
+          onClick={handleReset}
+          size="icon"
+          variant="ghost"
         >
-          <RotateCcw className="w-5 h-5" />
+          <RotateCcw className="h-5 w-5" />
         </Button>
       </div>
     </SettingContainer>

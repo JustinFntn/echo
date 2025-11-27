@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { SettingsGroup } from "../../ui/SettingsGroup";
-import { SettingContainer } from "../../ui/SettingContainer";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../ui/Button";
+import { SettingContainer } from "../../ui/SettingContainer";
+import { SettingsGroup } from "../../ui/SettingsGroup";
 import { AppDataDirectory } from "../app-data-directory";
 
 export const AboutSettings: React.FC = () => {
@@ -35,35 +36,34 @@ export const AboutSettings: React.FC = () => {
     <div className="space-y-6">
       <SettingsGroup title="About">
         <SettingContainer
-          title="Version"
           description="Current version of Echo"
           grouped={true}
+          title="Version"
         >
-          <span className="text-sm font-mono">v{version}</span>
+          <span className="font-mono text-sm">v{version}</span>
         </SettingContainer>
 
         <AppDataDirectory descriptionMode="tooltip" grouped={true} />
 
         <SettingContainer
-          title="Source Code"
           description="View source code and contribute"
           grouped={true}
+          title="Source Code"
         >
           <Button
-
-            size="default"
             onClick={() => openUrl("https://github.com/damien-schneider/echo")}
+            size="default"
           >
             View on GitHub
           </Button>
         </SettingContainer>
 
         <SettingContainer
-          title="Support Development"
           description="Help us continue building Echo"
           grouped={true}
+          title="Support Development"
         >
-          <Button variant="default" size="default" onClick={handleDonateClick}>
+          <Button onClick={handleDonateClick} size="default" variant="default">
             Donate
           </Button>
         </SettingContainer>
@@ -71,12 +71,12 @@ export const AboutSettings: React.FC = () => {
 
       <SettingsGroup title="Acknowledgments">
         <SettingContainer
-          title="Whisper.cpp"
           description="High-performance inference of OpenAI's Whisper automatic speech recognition model"
           grouped={true}
           layout="stacked"
+          title="Whisper.cpp"
         >
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-sm">
             Echo uses Whisper.cpp for fast, local speech-to-text processing.
             Thanks to the amazing work by Georgi Gerganov and contributors.
           </div>

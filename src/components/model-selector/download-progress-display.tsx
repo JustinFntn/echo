@@ -1,5 +1,5 @@
-import React from "react";
-import { ProgressBar, ProgressData } from "../shared";
+import type React from "react";
+import { ProgressBar, type ProgressData } from "../shared";
 
 interface DownloadProgress {
   model_id: string;
@@ -30,7 +30,9 @@ const DownloadProgressDisplay: React.FC<DownloadProgressDisplayProps> = ({
     return null;
   }
 
-  const progressData: ProgressData[] = Array.from(downloadProgress.values()).map((progress) => {
+  const progressData: ProgressData[] = Array.from(
+    downloadProgress.values()
+  ).map((progress) => {
     const stats = downloadStats.get(progress.model_id);
     return {
       id: progress.model_id,
@@ -41,8 +43,8 @@ const DownloadProgressDisplay: React.FC<DownloadProgressDisplayProps> = ({
 
   return (
     <ProgressBar
-      progress={progressData}
       className={className}
+      progress={progressData}
       showSpeed={downloadProgress.size === 1}
       size="medium"
     />

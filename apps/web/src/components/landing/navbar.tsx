@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Moon, Sun, Menu, X, Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useLenis } from "@/components/smooth-scroll";
-import EchoLogo from "@/components/icons/echo-logo";
-import { useGithubData } from "@/hooks/use-github-data";
-import { motion, AnimatePresence } from "motion/react";
 import { Link, useLocation } from "@tanstack/react-router";
+import { Download, Menu, Moon, Sun, X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
+import EchoLogo from "@/components/icons/echo-logo";
+import { useLenis } from "@/components/smooth-scroll";
+import { Button } from "@/components/ui/button";
+import { useGithubData } from "@/hooks/use-github-data";
 
 export default function Navbar() {
   const [isDark, setIsDark] = useState(false);
@@ -25,14 +25,14 @@ export default function Navbar() {
 
   useEffect(() => {
     if (location.hash) {
-        if (location.hash === "top") {
-            lenis?.scrollTo(0);
-        } else {
-            const element = document.querySelector(`#${location.hash}`);
-            if (element) {
-                lenis?.scrollTo(element as HTMLElement);
-            }
+      if (location.hash === "top") {
+        lenis?.scrollTo(0);
+      } else {
+        const element = document.querySelector(`#${location.hash}`);
+        if (element) {
+          lenis?.scrollTo(element as HTMLElement);
         }
+      }
     }
   }, [location.hash, lenis]);
 
@@ -47,142 +47,156 @@ export default function Navbar() {
   };
 
   return (
-    <motion.nav 
-      initial={{ y: -100, opacity: 0 }}
+    <motion.nav
       animate={{ y: 0, opacity: 1 }}
+      className="md:-translate-x-1/2 fixed inset-x-4 top-4 z-50 md:inset-x-auto md:left-1/2 md:w-full md:max-w-5xl"
+      initial={{ y: -100, opacity: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="fixed top-4 inset-x-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-5xl z-50"
     >
-      <div className="bg-background/80 backdrop-blur-md border border-border rounded-full shadow-lg pl-6 pr-2.5 h-14 flex items-center justify-between">
+      <div className="flex h-14 items-center justify-between rounded-full border border-border bg-background/80 pr-2.5 pl-6 shadow-lg backdrop-blur-md">
         <div className="flex items-center gap-2">
-          <Link 
-            to="/" 
-            hash="top"
-            className="flex items-center gap-2"
-          >
-            <EchoLogo variant="full" className="h-6 w-auto text-foreground" />
+          <Link className="flex items-center gap-2" hash="top" to="/">
+            <EchoLogo className="h-6 w-auto text-foreground" variant="full" />
           </Link>
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-6">
-          <Link 
-            to="/"
+        <div className="hidden items-center gap-6 md:flex">
+          <Link
+            className="font-medium text-sm transition-colors hover:text-primary"
             hash="features"
-            className="text-sm font-medium hover:text-primary transition-colors"
+            to="/"
           >
             Features
           </Link>
-          <Link 
-            to="/faq" 
-            className="text-sm font-medium hover:text-primary transition-colors"
+          <Link
+            className="font-medium text-sm transition-colors hover:text-primary"
+            to="/faq"
           >
             FAQ
           </Link>
-          <Link 
-            to="/"
+          <Link
+            className="font-medium text-sm transition-colors hover:text-primary"
             hash="download"
-            className="text-sm font-medium hover:text-primary transition-colors"
+            to="/"
           >
             Download
           </Link>
           <a
+            className="flex items-center gap-2 font-medium text-sm transition-colors hover:text-primary"
             href="https://github.com/damien-schneider/Echo"
-            target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-2"
+            target="_blank"
           >
             GitHub
             {stars && (
-                <motion.span 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground"
-                >
-                    {stars}
-                </motion.span>
+              <motion.span
+                animate={{ scale: 1 }}
+                className="flex items-center justify-center rounded-full bg-muted px-2 py-0.5 font-medium text-muted-foreground text-xs"
+                initial={{ scale: 0 }}
+              >
+                {stars}
+              </motion.span>
             )}
           </a>
-          
-          <div className="flex items-center gap-2 ml-4">
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-              {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+
+          <div className="ml-4 flex items-center gap-2">
+            <Button
+              className="rounded-full"
+              onClick={toggleTheme}
+              size="icon"
+              variant="ghost"
+            >
+              {isDark ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
             </Button>
-            <Button asChild className="rounded-full gap-2">
-                <Link to="/" hash="download">
-                    <Download className="h-4 w-4" />
-                    Download
-                </Link>
+            <Button asChild className="gap-2 rounded-full">
+              <Link hash="download" to="/">
+                <Download className="h-4 w-4" />
+                Download
+              </Link>
             </Button>
           </div>
         </div>
 
         {/* Mobile Menu Toggle */}
-        <div className="md:hidden flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
-              {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                {isMenuOpen ? <X /> : <Menu />}
-            </button>
+        <div className="flex items-center gap-4 md:hidden">
+          <Button
+            className="rounded-full"
+            onClick={toggleTheme}
+            size="icon"
+            variant="ghost"
+          >
+            {isDark ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+          </Button>
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X /> : <Menu />}
+          </button>
         </div>
       </div>
 
       {/* Mobile Menu */}
       <AnimatePresence>
-      {isMenuOpen && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -20, scale: 0.95 }}
-          transition={{ duration: 0.2 }}
-          className="md:hidden absolute top-full left-0 right-0 mt-2 bg-background/95 backdrop-blur-md border border-border rounded-2xl p-4 flex flex-col gap-4 shadow-xl"
-        >
-          <Link 
-            to="/"
-            hash="features"
-            className="text-sm font-medium" 
-            onClick={() => setIsMenuOpen(false)}
+        {isMenuOpen && (
+          <motion.div
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            className="absolute top-full right-0 left-0 mt-2 flex flex-col gap-4 rounded-2xl border border-border bg-background/95 p-4 shadow-xl backdrop-blur-md md:hidden"
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
           >
-            Features
-          </Link>
-          <Link 
-            to="/faq" 
-            className="text-sm font-medium" 
-            onClick={() => setIsMenuOpen(false)}
-          >
-            FAQ
-          </Link>
-          <Link 
-            to="/"
-            hash="download"
-            className="text-sm font-medium" 
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Download
-          </Link>
-          <a
-            href="https://github.com/damien-schneider/Echo"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-medium flex items-center gap-2"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            GitHub
-            {stars && (
-                <span className="flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                    {stars}
+            <Link
+              className="font-medium text-sm"
+              hash="features"
+              onClick={() => setIsMenuOpen(false)}
+              to="/"
+            >
+              Features
+            </Link>
+            <Link
+              className="font-medium text-sm"
+              onClick={() => setIsMenuOpen(false)}
+              to="/faq"
+            >
+              FAQ
+            </Link>
+            <Link
+              className="font-medium text-sm"
+              hash="download"
+              onClick={() => setIsMenuOpen(false)}
+              to="/"
+            >
+              Download
+            </Link>
+            <a
+              className="flex items-center gap-2 font-medium text-sm"
+              href="https://github.com/damien-schneider/Echo"
+              onClick={() => setIsMenuOpen(false)}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              GitHub
+              {stars && (
+                <span className="flex items-center justify-center rounded-full bg-muted px-2 py-0.5 font-medium text-muted-foreground text-xs">
+                  {stars}
                 </span>
-            )}
-          </a>
-          <Button asChild className="w-full rounded-full gap-2">
-            <Link to="/" hash="download" onClick={() => setIsMenuOpen(false)}>
+              )}
+            </a>
+            <Button asChild className="w-full gap-2 rounded-full">
+              <Link hash="download" onClick={() => setIsMenuOpen(false)} to="/">
                 <Download className="h-4 w-4" />
                 Download
-            </Link>
-          </Button>
-        </motion.div>
-      )}
+              </Link>
+            </Button>
+          </motion.div>
+        )}
       </AnimatePresence>
     </motion.nav>
   );

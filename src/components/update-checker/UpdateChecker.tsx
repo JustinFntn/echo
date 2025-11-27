@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
-import { check } from "@tauri-apps/plugin-updater";
-import { relaunch } from "@tauri-apps/plugin-process";
 import { listen } from "@tauri-apps/api/event";
-import { ProgressBar } from "../shared";
+import { relaunch } from "@tauri-apps/plugin-process";
+import { check } from "@tauri-apps/plugin-updater";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
+import { ProgressBar } from "../shared";
 
 interface UpdateCheckerProps {
   className?: string;
@@ -19,7 +20,9 @@ const UpdateChecker: React.FC<UpdateCheckerProps> = ({ className = "" }) => {
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [showUpToDate, setShowUpToDate] = useState(false);
 
-  const upToDateTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const upToDateTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
   const isManualCheckRef = useRef(false);
   const downloadedBytesRef = useRef(0);
   const contentLengthRef = useRef(0);
@@ -96,17 +99,18 @@ const UpdateChecker: React.FC<UpdateCheckerProps> = ({ className = "" }) => {
             downloadedBytesRef.current = 0;
             contentLengthRef.current = event.data.contentLength ?? 0;
             break;
-          case "Progress":
+          case "Progress": {
             downloadedBytesRef.current += event.data.chunkLength;
             const progress =
               contentLengthRef.current > 0
                 ? Math.round(
                     (downloadedBytesRef.current / contentLengthRef.current) *
-                      100,
+                      100
                   )
                 : 0;
             setDownloadProgress(Math.min(progress, 100));
             break;
+          }
         }
       });
       await relaunch();
@@ -136,13 +140,14 @@ const UpdateChecker: React.FC<UpdateCheckerProps> = ({ className = "" }) => {
 
   const getUpdateStatusAction = () => {
     if (updateAvailable && !isInstalling) return installUpdate;
-    if (!isChecking && !isInstalling && !updateAvailable)
+    if (!(isChecking || isInstalling || updateAvailable))
       return handleManualUpdateCheck;
-    return undefined;
+    return;
   };
 
   const isUpdateDisabled = isChecking || isInstalling || showUpToDate;
-  const isUpdateClickable = !isUpdateDisabled && (updateAvailable || !isChecking);
+  const isUpdateClickable =
+    !isUpdateDisabled && (updateAvailable || !isChecking);
 
   const showSpinner = isChecking || (isInstalling && downloadProgress === 0);
 
@@ -150,16 +155,16 @@ const UpdateChecker: React.FC<UpdateCheckerProps> = ({ className = "" }) => {
     <div className={`flex items-center gap-3 ${className}`}>
       <div className="relative">
         <Button
-          onClick={getUpdateStatusAction()}
-          disabled={!isUpdateClickable}
-          variant="ghost"
-          size="xs"
           className={cn(
             "min-w-32 items-center gap-2",
             updateAvailable
-              ? "text-brand hover:text-brand/80 font-medium"
+              ? "font-medium text-brand hover:text-brand/80"
               : "text-text/60 hover:text-text/80"
           )}
+          disabled={!isUpdateClickable}
+          onClick={getUpdateStatusAction()}
+          size="xs"
+          variant="ghost"
         >
           {showSpinner ? (
             <Spinner className="size-3" />

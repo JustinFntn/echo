@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { ModelInfo } from "../../lib/types";
-import ModelCard from "./model-card";
+import type React from "react";
+import { useEffect, useState } from "react";
+import type { ModelInfo } from "../../lib/types";
 import EchoLogo from "../icons/echo-logo";
+import ModelCard from "./model-card";
 
 interface OnboardingProps {
   onModelSelected: () => void;
@@ -44,42 +45,44 @@ const Onboarding: React.FC<OnboardingProps> = ({ onModelSelected }) => {
     }
   };
 
-  const getRecommendedBadge = (modelId: string): boolean => {
-    return modelId === "parakeet-tdt-0.6b-v3";
-  };
+  const getRecommendedBadge = (modelId: string): boolean =>
+    modelId === "parakeet-tdt-0.6b-v3";
 
   return (
-    <div className="pb-12 pt-8">
+    <div className="pt-8 pb-12">
       {/* Draggable header region */}
-      <div 
+      <div className="h-8 w-full shrink-0 select-none" data-tauri-drag-region />
+      <div
+        className="mb-12 flex shrink-0 flex-col items-center gap-2 px-6"
         data-tauri-drag-region
-        className="h-8 w-full shrink-0 select-none"
-      />
-      <div className="flex flex-col items-center gap-2 shrink-0 px-6 mb-12" data-tauri-drag-region>
-        <EchoLogo width={120} variant="full" data-tauri-drag-region />
-        <p className="text-foreground/60 max-w-md font-light mx-auto mt-2" data-tauri-drag-region>
+      >
+        <EchoLogo data-tauri-drag-region variant="full" width={120} />
+        <p
+          className="mx-auto mt-2 max-w-md font-light text-foreground/60"
+          data-tauri-drag-region
+        >
           To get started, choose a transcription model
         </p>
       </div>
 
-      <div className="max-w-[600px] w-full mx-auto text-center flex-1 flex flex-col min-h-0 px-6">
+      <div className="mx-auto flex min-h-0 w-full max-w-[600px] flex-1 flex-col px-6 text-center">
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-4 shrink-0">
+          <div className="mb-4 shrink-0 rounded-lg border border-red-500/20 bg-red-500/10 p-4">
             <p className="text-red-400 text-sm">{error}</p>
           </div>
         )}
 
         {/*<div className="flex flex-col gap-4 bg-background-dark p-4 py-5 w-full rounded-2xl flex-1 overflow-y-auto min-h-0">*/}
-        <div className="flex flex-col gap-4 ">
+        <div className="flex flex-col gap-4">
           {availableModels
             .filter((model) => getRecommendedBadge(model.id))
             .map((model) => (
               <ModelCard
+                disabled={downloading}
                 key={model.id}
                 model={model}
-                variant="featured"
-                disabled={downloading}
                 onSelect={handleDownloadModel}
+                variant="featured"
               />
             ))}
 
@@ -88,9 +91,9 @@ const Onboarding: React.FC<OnboardingProps> = ({ onModelSelected }) => {
             .sort((a, b) => a.size_mb - b.size_mb)
             .map((model) => (
               <ModelCard
+                disabled={downloading}
                 key={model.id}
                 model={model}
-                disabled={downloading}
                 onSelect={handleDownloadModel}
               />
             ))}

@@ -8,6 +8,5 @@ export const DEFAULT_PROVIDER_BASE_URLS: Record<string, string> = {
   custom: "http://localhost:8080/v1",
 };
 
-export const getDefaultBaseUrl = (providerId: string): string | undefined => {
-  return DEFAULT_PROVIDER_BASE_URLS[providerId];
-};
+export const getDefaultBaseUrl = (providerId: string): string | undefined =>
+  DEFAULT_PROVIDER_BASE_URLS[providerId];

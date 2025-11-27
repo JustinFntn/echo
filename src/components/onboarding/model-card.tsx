@@ -1,9 +1,8 @@
-import React from "react";
 import { DownloadIcon } from "lucide-react";
-import { ModelInfo } from "../../lib/types";
-import { formatModelSize } from "../../lib/utils/format";
+import type React from "react";
 import { Badge } from "@/components/ui/Badge";
-
+import type { ModelInfo } from "../../lib/types";
+import { formatModelSize } from "../../lib/utils/format";
 
 interface ModelCardProps {
   model: ModelInfo;
@@ -31,41 +30,41 @@ const ModelCard: React.FC<ModelCardProps> = ({
 
   return (
     <button
-      onClick={() => onSelect(model.id)}
-      disabled={disabled}
       className={[baseButtonClasses, variantClasses, className]
         .filter(Boolean)
         .join(" ")}
+      disabled={disabled}
+      onClick={() => onSelect(model.id)}
       type="button"
     >
       <div className="flex flex-col">
         <div className="flex items-center gap-4">
-          <h3 className="text-lg font-medium tracking-tight text-foreground group-hover:text-foreground transition-colors">
+          <h3 className="font-medium text-foreground text-lg tracking-tight transition-colors group-hover:text-foreground">
             {model.name}
           </h3>
           <DownloadSize sizeMb={model.size_mb} />
           {isFeatured && <Badge variant="default">Recommended</Badge>}
         </div>
-        <p className="text-foreground/50 font-light text-sm leading-relaxed">
+        <p className="font-light text-foreground/50 text-sm leading-relaxed">
           {model.description}
         </p>
       </div>
 
       <div className="space-y-1">
         <div className="flex items-center gap-2">
-          <p className="text-xs text-text/70 w-16 text-right">accuracy</p>
-          <div className="w-20 h-2 bg-muted/20 rounded-full overflow-hidden">
+          <p className="w-16 text-right text-text/70 text-xs">accuracy</p>
+          <div className="h-2 w-20 overflow-hidden rounded-full bg-muted/20">
             <div
-              className="h-full bg-foreground rounded-full transition-all duration-300"
+              className="h-full rounded-full bg-foreground transition-all duration-300"
               style={{ width: `${model.accuracy_score * 100}%` }}
             />
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <p className="text-xs text-text/70 w-16 text-right">speed</p>
-          <div className="w-20 h-2 bg-muted/20 rounded-full overflow-hidden">
+          <p className="w-16 text-right text-text/70 text-xs">speed</p>
+          <div className="h-2 w-20 overflow-hidden rounded-full bg-muted/20">
             <div
-              className="h-full bg-foreground rounded-full transition-all duration-300"
+              className="h-full rounded-full bg-foreground transition-all duration-300"
               style={{ width: `${model.speed_score * 100}%` }}
             />
           </div>
@@ -75,19 +74,17 @@ const ModelCard: React.FC<ModelCardProps> = ({
   );
 };
 
-const DownloadSize = ({ sizeMb }: { sizeMb: number }) => {
-  return (
-    <div className="flex items-center gap-1.5 text-xs text-foreground/60 tabular-nums">
-      <DownloadIcon
-        aria-hidden="true"
-        className="h-3.5 w-3.5 text-foreground/45"
-      />
-      <span className="sr-only">Download size</span>
-      <span className="font-medium text-foreground/70 tracking-tight  ">
-        {formatModelSize(sizeMb)}
-      </span>
-    </div>
-  );
-};
+const DownloadSize = ({ sizeMb }: { sizeMb: number }) => (
+  <div className="flex items-center gap-1.5 text-foreground/60 text-xs tabular-nums">
+    <DownloadIcon
+      aria-hidden="true"
+      className="h-3.5 w-3.5 text-foreground/45"
+    />
+    <span className="sr-only">Download size</span>
+    <span className="font-medium text-foreground/70 tracking-tight">
+      {formatModelSize(sizeMb)}
+    </span>
+  </div>
+);
 
 export default ModelCard;

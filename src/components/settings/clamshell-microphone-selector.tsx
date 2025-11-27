@@ -1,11 +1,20 @@
-import React, { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import { SettingContainer } from "@/components/ui/SettingContainer";
+import { Laptop2, RefreshCw, RotateCcw } from "lucide-react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { RotateCcw, RefreshCw, Laptop2 } from "lucide-react";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/components/ui/native-select";
+import { SettingContainer } from "@/components/ui/SettingContainer";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useSettings } from "@/hooks/use-settings";
 
 interface ClamshellMicrophoneSelectorProps {
@@ -13,10 +22,9 @@ interface ClamshellMicrophoneSelectorProps {
   grouped?: boolean;
 }
 
-export const ClamshellMicrophoneSelector: React.FC<ClamshellMicrophoneSelectorProps> = ({
-  descriptionMode = "tooltip",
-  grouped = false,
-}) => {
+export const ClamshellMicrophoneSelector: React.FC<
+  ClamshellMicrophoneSelectorProps
+> = ({ descriptionMode = "tooltip", grouped = false }) => {
   const {
     getSetting,
     updateSetting,
@@ -63,24 +71,24 @@ export const ClamshellMicrophoneSelector: React.FC<ClamshellMicrophoneSelectorPr
 
   return (
     <SettingContainer
-      title="Clamshell Microphone"
       description="Choose a fallback microphone to use when your laptop lid is closed"
       descriptionMode={descriptionMode}
       grouped={grouped}
-      icon={<Laptop2 className="w-4 h-4" />}
+      icon={<Laptop2 className="h-4 w-4" />}
+      title="Clamshell Microphone"
     >
       <div className="flex items-center space-x-1">
         <NativeSelect
-          value={selectedClamshellMicrophone}
-          onChange={(event) => handleSelect(event.target.value)}
+          className="flex-1"
           disabled={
             isUpdating("clamshell_microphone") ||
             isLoading ||
             audioDevices.length === 0
           }
-          className="flex-1"
+          onChange={(event) => handleSelect(event.target.value)}
+          value={selectedClamshellMicrophone}
         >
-          <NativeSelectOption value="" disabled>
+          <NativeSelectOption disabled value="">
             {isLoading || audioDevices.length === 0
               ? "Loading..."
               : "Select microphone..."}
@@ -92,35 +100,34 @@ export const ClamshellMicrophoneSelector: React.FC<ClamshellMicrophoneSelectorPr
           ))}
         </NativeSelect>
         <TooltipProvider>
-
-        <ButtonGroup className="">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleReset}
-                disabled={isUpdating("clamshell_microphone") || isLoading}
-              >
-                <RotateCcw className="w-5 h-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Reset to default</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={refreshAudioDevices}
-                disabled={isLoading}
-              >
-                <RefreshCw className="w-5 h-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Refresh devices</TooltipContent>
-          </Tooltip>
-        </ButtonGroup>
+          <ButtonGroup className="">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  disabled={isUpdating("clamshell_microphone") || isLoading}
+                  onClick={handleReset}
+                  size="icon"
+                  variant="outline"
+                >
+                  <RotateCcw className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Reset to default</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  disabled={isLoading}
+                  onClick={refreshAudioDevices}
+                  size="icon"
+                  variant="outline"
+                >
+                  <RefreshCw className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Refresh devices</TooltipContent>
+            </Tooltip>
+          </ButtonGroup>
         </TooltipProvider>
       </div>
     </SettingContainer>

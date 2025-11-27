@@ -25,13 +25,13 @@ export const ApiKeyField: React.FC<ApiKeyFieldProps> = ({
 
   return (
     <Input
+      className={`min-w-[320px] flex-1 ${className}`}
+      disabled={disabled}
+      onBlur={() => onBlur(localValue)}
+      onChange={(event) => setLocalValue(event.target.value)}
+      placeholder={placeholder}
       type="password"
       value={localValue}
-      onChange={(event) => setLocalValue(event.target.value)}
-      onBlur={() => onBlur(localValue)}
-      placeholder={placeholder}
-      disabled={disabled}
-      className={`flex-1 min-w-[320px] ${className}`}
     />
   );
 };

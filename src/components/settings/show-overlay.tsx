@@ -1,9 +1,8 @@
-import React from "react";
 import { Layers } from "lucide-react";
-import { NativeSelect, NativeSelectOption } from "../ui/native-select";
-import { SettingContainer } from "../ui/SettingContainer";
 import { useSettings } from "../../hooks/use-settings";
 import type { OverlayPosition } from "../../lib/types";
+import { NativeSelect, NativeSelectOption } from "../ui/native-select";
+import { SettingContainer } from "../ui/SettingContainer";
 
 interface ShowOverlayProps {
   descriptionMode?: "inline" | "tooltip";
@@ -16,7 +15,10 @@ const overlayOptions = [
   { value: "top", label: "Top" },
 ];
 
-export const ShowOverlay = ({ descriptionMode = "tooltip", grouped = false }: ShowOverlayProps) => {
+export const ShowOverlay = ({
+  descriptionMode = "tooltip",
+  grouped = false,
+}: ShowOverlayProps) => {
   const { getSetting, updateSetting, isUpdating } = useSettings();
 
   const selectedPosition = (getSetting("overlay_position") ||
@@ -24,18 +26,18 @@ export const ShowOverlay = ({ descriptionMode = "tooltip", grouped = false }: Sh
 
   return (
     <SettingContainer
-      title="Overlay Position"
       description="Display visual feedback overlay during recording and transcription"
       descriptionMode={descriptionMode}
       grouped={grouped}
-      icon={<Layers className="w-4 h-4" />}
+      icon={<Layers className="h-4 w-4" />}
+      title="Overlay Position"
     >
       <NativeSelect
-        value={selectedPosition}
+        disabled={isUpdating("overlay_position")}
         onChange={(e) =>
           updateSetting("overlay_position", e.target.value as OverlayPosition)
         }
-        disabled={isUpdating("overlay_position")}
+        value={selectedPosition}
       >
         {overlayOptions.map((option) => (
           <NativeSelectOption key={option.value} value={option.value}>
